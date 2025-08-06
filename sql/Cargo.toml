@@ -1,0 +1,28 @@
+[package]
+name = "sql-infra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra.workspace = true
+
+sea-orm = { workspace = true, features = ["time"] }
+serde = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+anyhow.workspace = true
+ruint.workspace = true
+bigdecimal.workspace = true
+
+[features]
+pgsql = ["sea-orm/sqlx-postgres"]
+sqlite = ["sea-orm/sqlx-sqlite"]
+
+#mysql = ["sea-orm/sqlx-mysql"]
+#default = ["sqlite"]
+
+[dev-dependencies]
+

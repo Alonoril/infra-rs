@@ -1,0 +1,26 @@
+[package]
+name = "rksdb-infra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra = {workspace = true, features = ["bin-codec", "tokio-pool"]}
+
+serde = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+bcs = { workspace = true }
+bincode = { workspace = true }
+rocksdb = { workspace = true }
+dunce = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+byteorder = "1.5.0"
+aptos-temppath = { git = "https://github.com/aptos-labs/aptos-core", branch = "mainnet" }
+tempfile = { workspace = true }
+tokio-test = { workspace = true }

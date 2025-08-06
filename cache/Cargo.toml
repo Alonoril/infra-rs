@@ -1,0 +1,23 @@
+[package]
+name = "cache-infra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra = { workspace = true, features = ["bin-codec"] }
+
+anyhow.workspace = true
+async-trait.workspace = true
+serde.workspace = true
+tokio = { workspace = true, features = ["time", "sync"] }
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+moka = { workspace = true, features = ["sync"] }
+bincode.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["time", "rt", "rt-multi-thread", "macros"] }

@@ -1,0 +1,22 @@
+[package]
+name = "cfg-nacos"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra.workspace = true
+arc-swap.workspace = true
+#nacos-sdk = { version = "0.4.3", no-default-features = true, features = ['tls'] }
+# features = ['tls']
+nacos-sdk.workspace = true
+serde = { workspace = true, features = ["derive", "rc"] }
+tracing.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+figment = { workspace = true, features = ["env", "yaml", "toml", "json"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+[dev-dependencies]
