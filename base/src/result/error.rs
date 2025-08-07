@@ -1,6 +1,6 @@
 use crate::result::{DynErrCode, ErrorCode, SysErr};
 use anyhow::anyhow;
-#[cfg(feature = "htp")]
+#[cfg(feature = "http")]
 use http::StatusCode;
 use std::fmt::{Debug, Display, Formatter};
 
@@ -146,7 +146,7 @@ where
 pub enum AppError {
     ErrCode(&'static DynErrCode),
     Anyhow(&'static DynErrCode, anyhow::Error),
-    #[cfg(feature = "htp")]
+    #[cfg(feature = "http")]
     HttpErr(&'static DynErrCode, StatusCode),
 }
 
@@ -164,7 +164,7 @@ impl Debug for AppError {
                 .field("msg", &code.message())
                 .field("error", e)
                 .finish(),
-            #[cfg(feature = "htp")]
+            #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => f
                 .debug_struct("AppError")
                 .field("http_status", status)
@@ -180,7 +180,7 @@ impl Display for AppError {
         match self {
             AppError::ErrCode(code) => write!(f, "ErrCode [{code}]"),
             AppError::Anyhow(code, e) => write!(f, "ErrCode [{code}], error: {e}"),
-            #[cfg(feature = "htp")]
+            #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => {
                 write!(
                     f,
@@ -199,7 +199,7 @@ impl AppError {
         match self {
             AppError::ErrCode(code) => code.to_string(),
             AppError::Anyhow(_code, e) => format!("{e}"),
-            #[cfg(feature = "htp")]
+            #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => format!(
                 "HttpStatus [{}] ErrCode[{}] message: {}",
                 status,

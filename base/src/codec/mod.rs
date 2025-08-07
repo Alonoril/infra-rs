@@ -1,3 +1,3 @@
-#[cfg(feature = "bin-codec")]
+#[cfg(feature = "bincode")]
 pub mod bincode;
 pub mod error;

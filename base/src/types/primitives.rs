@@ -128,7 +128,7 @@ macro_rules! define_primitive_wrapper {
     // 简单类型（u64）
     ($wrapper_name:ident, u64, simple) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-        #[cfg_attr(feature = "bin-codec", derive(bincode::Encode, bincode::Decode))]
+        #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
         #[repr(transparent)]
         pub struct $wrapper_name(pub u64);
 

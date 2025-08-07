@@ -40,7 +40,7 @@ impl RespData<()> {
 		match error {
 			AppError::ErrCode(code) => Self::with_code(code),
 			AppError::Anyhow(code, e) => Self::with_anyhow(code, e),
-			#[cfg(feature = "htp")]
+			#[cfg(feature = "http")]
 			AppError::HttpErr(code, _status) => Self::with_code(code),
 		}
 	}

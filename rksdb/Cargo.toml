@@ -7,7 +7,7 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-base-infra = {workspace = true, features = ["bin-codec", "tokio-pool"]}
+base-infra = {workspace = true, features = ["bincode", "tokio-pool"]}
 
 serde = { workspace = true }
 anyhow = { workspace = true }

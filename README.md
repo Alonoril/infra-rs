@@ -36,7 +36,7 @@ The cornerstone module providing essential utilities and patterns used across al
 
 **Dependencies:**
 ```toml
-base-infra = { workspace = true, features = ["tokio-pool", "bin-codec"] }
+base-infra = { workspace = true, features = ["tokio-pool", "bincode"] }
 ```
 
 ### 💾 Data & Storage
@@ -259,7 +259,7 @@ serde.workspace = true
 
 Each module provides optional feature flags for fine-grained control:
 
-- **base-infra**: `tokio-pool`, `rayon-pool`, `bin-codec`, `htp`
+- **base-infra**: `tokio-pool`, `rayon-pool`, `bincode`, `http`
 - **sql-infra**: `pgsql`, `sqlite`
 - **rksdb-infra**: Inherits from `base-infra` features
 

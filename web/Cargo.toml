@@ -7,7 +7,7 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-base-infra = { workspace = true, features = ["htp"] }
+base-infra = { workspace = true, features = ["http"] }
 sql-infra = { workspace = true }
 
 axum.workspace = true

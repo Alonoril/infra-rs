@@ -16,14 +16,11 @@ backtrace.workspace = true
 serde.workspace = true
 uuid.workspace = true
 figment = { workspace = true, features = ["env", "yaml", "toml"] }
-alloy-primitives.workspace = true
 
 
 [features]
-htp = ["http"]
 tokio-pool = ["tokio", "num_cpus"]
 rayon-pool = ["rayon"]
-bin-codec = ["bincode"]
 
 [dependencies.http]
 workspace = true
@@ -42,6 +39,10 @@ workspace = true
 optional = true
 
 [dependencies.bincode]
+workspace = true
+optional = true
+
+[dependencies.alloy-primitives]
 workspace = true
 optional = true
 

@@ -7,7 +7,7 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-base-infra = { workspace = true, features = ["bin-codec"] }
+base-infra = { workspace = true, features = ["bincode"] }
 
 anyhow.workspace = true
 async-trait.workspace = true
