@@ -1,6 +1,5 @@
 mod bincode;
 
-pub use bcs::*;
 pub use bincode::*;
 
 /// A macro to generate the `ValueCodec` implementation for a given schema type.

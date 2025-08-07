@@ -11,8 +11,6 @@ pub enum BaseError {
     IoError(#[from] io::Error),
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
-    #[error(transparent)]
-    BcsError(#[from] bcs::Error),
     #[error("cache not initialized for ttl: {0:?}")]
     CacheNotInit(CacheTtl),
 }
