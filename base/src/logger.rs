@@ -64,7 +64,6 @@ impl Logger {
                 RtEnv::Production => LevelFilter::DEBUG,
             },
         };
-        eprintln!(">>>>>>max_level: {max_level:?}");
 
         let mut env_filter = EnvFilter::try_from_default_env()
             .unwrap_or_else(|_| EnvFilter::new(max_level.to_string()));
