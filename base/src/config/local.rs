@@ -32,6 +32,21 @@ pub struct LocalConfig {
 }
 
 impl LocalConfig {
+    pub fn new(rt_env: RtEnv) -> Self {
+        Self {
+            rt_env,
+            log_level: Some(Level::INFO),
+            ..Default::default()
+        }
+    }
+
+    pub fn with_config_path(self, path: PathBuf) -> Self {
+        Self {
+            config_path: Some(path),
+            ..self
+        }
+    }
+
     pub fn log_level(&self) -> Level {
         self.log_level.unwrap_or(Level::INFO)
     }
