@@ -20,6 +20,10 @@ pub struct Logger {
 }
 
 impl Logger {
+    pub fn with_path(self, path: PathBuf) -> Self {
+        Self { path, ..self }
+    }
+
     pub fn init(&self, app_args: &LocalConfig) -> WorkerGuard {
         let app_env: RtEnv = app_args.rt_env;
         let console_logger = std::io::stdout();
