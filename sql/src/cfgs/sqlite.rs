@@ -7,13 +7,10 @@ use std::path::PathBuf;
 pub static DB_URL_PREFIX: &str = "sqlite://";
 // pub static DB_URL_SUFFIX: &str = "?mode=rwc";
 pub static DB_URL_SUFFIX: &str = "";
-pub static DB_FILE: &str = "dex_amm_bot.db3";
-
-// let db_url = format!("{}{}{}", url_prefix, db_file, url_suffix);
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DbConfig {
-    pub app_dir: PathBuf,
+    pub db_file: PathBuf,
     pub max_connections: u32,
     pub min_connections: u32,
     pub connect_timeout_secs: u64,
@@ -23,28 +20,22 @@ pub struct DbConfig {
 }
 
 impl DbConfig {
-    pub fn new(app_dir: PathBuf) -> Self {
+    pub fn new(db_file: PathBuf) -> Self {
         Self {
-            app_dir,
+            db_file,
             ..Default::default()
         }
     }
 
     pub fn db_url(&self) -> anyhow::Result<String> {
-        let db_file = self.app_dir.join("db");
-        if !db_file.exists() {
-            fs::create_dir_all(db_file.clone()).context("Failed to create db directory")?;
-        }
-
-        let db_file = db_file.join(DB_FILE);
-        if !db_file.exists() {
-            fs::File::create(db_file.clone()).context("Failed to create db file")?;
+        if !self.db_file.exists() {
+            fs::File::create(&self.db_file).context("Failed to create db file")?;
         }
 
         Ok(format!(
             "{}{}{}",
             DB_URL_PREFIX,
-            db_file.display(),
+            self.db_file.display(),
             DB_URL_SUFFIX
         ))
     }
@@ -53,7 +44,7 @@ impl DbConfig {
 impl Default for DbConfig {
     fn default() -> Self {
         Self {
-            app_dir: PathBuf::from("../data/"),
+            db_file: PathBuf::from("../data/"),
             max_connections: 10,
             min_connections: 10,
             connect_timeout_secs: 30,
