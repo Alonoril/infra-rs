@@ -15,7 +15,6 @@ axum-macros.workspace = true
 http.workspace = true
 tower.workspace = true
 #tower-http.workspace = true
-utoipa.workspace = true
 
 tracing.workspace = true
 thiserror.workspace = true
@@ -23,5 +22,10 @@ anyhow.workspace = true
 #backtrace.workspace = true
 serde.workspace = true
 lazy_static.workspace = true
+
+[dependencies.utoipa]
+workspace = true
+optional = true
+
 
 [dev-dependencies]

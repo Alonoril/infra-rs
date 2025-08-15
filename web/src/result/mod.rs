@@ -6,18 +6,38 @@ pub use axum::*;
 use base_infra::result::RespData;
 pub use error::*;
 use serde::Serialize;
+#[cfg(feature = "utoipa")]
 use utoipa::ToSchema;
 
 pub type AxumResult<T> = Result<T, AxumError>;
 
+#[cfg(feature = "utoipa")]
 #[derive(Debug, Clone, Serialize, ToSchema)]
-pub struct AxumResp<T: utoipa::ToSchema> {
+pub struct AxumResp<T: ToSchema> {
+    code: String,
+    msg: String,
+    data: Option<T>,
+}
+#[cfg(not(feature = "utoipa"))]
+#[derive(Debug, Clone, Serialize)]
+pub struct AxumResp<T> {
     code: String,
     msg: String,
     data: Option<T>,
 }
 
-impl<T: utoipa::ToSchema> From<RespData<T>> for AxumResp<T> {
+#[cfg(feature = "utoipa")]
+impl<T: ToSchema> From<RespData<T>> for AxumResp<T> {
+    fn from(value: RespData<T>) -> Self {
+        Self {
+            code: value.code,
+            msg: value.msg,
+            data: value.data,
+        }
+    }
+}
+#[cfg(not(feature = "utoipa"))]
+impl<T> From<RespData<T>> for AxumResp<T> {
     fn from(value: RespData<T>) -> Self {
         Self {
             code: value.code,

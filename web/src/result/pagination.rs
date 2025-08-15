@@ -1,6 +1,7 @@
+#[cfg(feature = "utoipa")]
+use utoipa::ToSchema;
 use serde::{Deserialize, Serialize};
 use sql_infra::sea_ext::page::{PageQuery, PageSizeTrait};
-use utoipa::ToSchema;
 
 pub trait ToPagination
 where
@@ -12,14 +13,38 @@ where
 }
 
 /// 交易订单列表响应 paged
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct PageResp<T: utoipa::ToSchema> {
+#[cfg(feature = "utoipa")]
+#[derive(Debug, Serialize, Deserialize,ToSchema )]
+pub struct PageResp<T: ToSchema> {
     /// 交易订单列表
     pub list: Vec<T>,
     /// 分页信息
     pub pagination: Pagination,
 }
-impl<T: utoipa::ToSchema> PageResp<T> {
+#[cfg(not(feature = "utoipa"))]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PageResp<T> {
+    /// 交易订单列表
+    pub list: Vec<T>,
+    /// 分页信息
+    pub pagination: Pagination,
+}
+
+#[cfg(feature = "utoipa")]
+impl<T: ToSchema> PageResp<T> {
+    pub fn new(list: Vec<T>, pagination: Pagination) -> Self {
+        Self { list, pagination }
+    }
+
+    pub fn new_with_page(list: Vec<T>, page: PageQuery) -> Self {
+        Self {
+            list,
+            pagination: page.into(),
+        }
+    }
+}
+#[cfg(not(feature = "utoipa"))]
+impl<T> PageResp<T> {
     pub fn new(list: Vec<T>, pagination: Pagination) -> Self {
         Self { list, pagination }
     }
@@ -33,7 +58,8 @@ impl<T: utoipa::ToSchema> PageResp<T> {
 }
 
 /// Api分页查询
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PageParams {
     /// 页码，从1开始
@@ -53,7 +79,8 @@ fn default_page_size() -> u32 {
 }
 
 /// 分页信息
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Pagination {
     /// 当前页码
@@ -76,7 +103,15 @@ impl Pagination {
     }
 }
 
-impl<T: utoipa::ToSchema> Default for PageResp<T> {
+#[cfg(feature = "utoipa")]
+impl<T: ToSchema> Default for PageResp<T> {
+    fn default() -> Self {
+        Self::new(vec![], Pagination::default())
+    }
+}
+
+#[cfg(not(feature = "utoipa"))]
+impl<T> Default for PageResp<T> {
     fn default() -> Self {
         Self::new(vec![], Pagination::default())
     }
