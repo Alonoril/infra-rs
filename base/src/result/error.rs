@@ -9,7 +9,8 @@ use std::fmt::{Debug, Display, Formatter};
 macro_rules! only_code {
     ($code:expr) => {
         |e| {
-            tracing::error!("ErrCode[{}] reason: {:?}", $code, e);
+            tracing::debug!("ErrCode[{}] reason: {:?}", $code, e);
+            tracing::error!("ErrCode[{}] reason: {}", $code, e);
             $crate::result::AppError::ErrCode($code)
         }
     };
@@ -22,21 +23,24 @@ macro_rules! only_code {
 macro_rules! map_err {
     ($code:expr) => {
         |err| {
-            tracing::error!("ErrCode[{}] reason: {:?}", $code, err);
+            tracing::debug!("ErrCode[{}] reason: {:?}", $code, err);
+            tracing::error!("ErrCode[{}] reason: {}", $code, err);
             $crate::result::AppError::Anyhow($code, anyhow::anyhow!(err))
         }
     };
 
     ($code:expr, $ext:expr) => {
         |err| {
-            tracing::error!("ErrCode[{}] {}, reason: {:?}", $code, $ext, err);
+            tracing::debug!("ErrCode[{}] {}, reason: {:?}", $code, $ext, err);
+            tracing::error!("ErrCode[{}] {}, reason: {}", $code, $ext, err);
             $crate::result::AppError::Anyhow($code, anyhow::anyhow!("{}: {}", $ext, err))
         }
     };
 
     (http $status:expr) => {
         |err| {
-            tracing::error!("Http Status[{}]: {:?}", $status, err);
+            tracing::debug!("Http Status[{}]: {:?}", $status, err);
+            tracing::error!("Http Status[{}]: {}", $status, err);
             match err {
                 $crate::result::AppError::ErrCode(code) => {
                     $crate::result::AppError::HttpErr(code, $status)
@@ -63,7 +67,8 @@ macro_rules! err {
     }};
 
     ($code:expr, $err:expr) => {{
-        tracing::error!("ErrCode[{}] error: {:?}", $code, $err);
+        tracing::debug!("ErrCode[{}] error: {:?}", $code, $err);
+        tracing::error!("ErrCode[{}] error: {}", $code, $err);
         Err($crate::result::AppError::Anyhow(
             $code,
             anyhow::anyhow!($err),
@@ -137,7 +142,8 @@ where
 {
     // move |source| AppError::Anyhow(code, anyhow!("{}", source))
     move |source| {
-        tracing::error!("ErrCode[{}] reason: {:?}", code, source);
+        tracing::debug!("ErrCode[{}] reason: {:?}", code, source);
+        tracing::error!("ErrCode[{}] reason: {}", code, source);
         AppError::Anyhow(code, anyhow!(source))
     }
 }
