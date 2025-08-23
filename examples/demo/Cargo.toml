@@ -1,0 +1,19 @@
+[package]
+name = "example-demo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base-infra = { workspace = true, features = ["tokio-pool"] }
+cli-infra = { workspace = true }
+
+clap = { workspace = true }
+tokio = { workspace = true, features = ["signal", "rt", "rt-multi-thread", "macros"] }
+dotenvy = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }

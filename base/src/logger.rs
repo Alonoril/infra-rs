@@ -43,12 +43,13 @@ impl Logger {
             .with_thread_ids(true)
             .with_ansi(self.is_ansi(app_args))
             .with_writer(non_blocking);
-        registry()
+
+        let layered = registry()
             // .with(max_level)
             .with(self.build_env_filter(app_args))
-            .with(layer)
-            .init();
+            .with(layer);
 
+        layered.init();
         // init panic hook
         self.panic_hook();
 

@@ -29,6 +29,7 @@ optional = true
 [dependencies.tokio]
 workspace = true
 optional = true
+features = ["io-util"]
 
 [dependencies.num_cpus]
 workspace = true

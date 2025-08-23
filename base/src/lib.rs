@@ -1,6 +1,7 @@
 pub mod codec;
 pub mod config;
 pub mod logger;
+pub mod macros;
 pub mod result;
 pub mod runtimes;
 pub mod tools;

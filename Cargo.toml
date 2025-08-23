@@ -15,6 +15,7 @@ members = [
     "web",
     "cli",
     "cache",
+    "examples/demo",
 ]
 
 [workspace.dependencies]
