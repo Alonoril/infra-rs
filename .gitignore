@@ -18,3 +18,4 @@ log.out
 /._target/
 logs/
 .DS_Store
+.claude

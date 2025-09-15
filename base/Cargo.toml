@@ -52,3 +52,4 @@ optional = true
 tokio = { workspace = true, features = ["full"] }
 reqwest.workspace = true
 serde_json.workspace = true
+tracing-rolling-file = { version = "0.1.3", features = ["non-blocking"] }
