@@ -27,10 +27,10 @@ mod tests {
 	fn test_v4() {
 		let my_uuid = UID.v4();
 		println!("{:?}", my_uuid);
-		// 将UUID转换为两个u64
+		// Convert UUID into two u64 values
 		let (high, low) = my_uuid.as_u64_pair();
 
-		// 打印结果
+		// Print the result
 		println!("High u64: {}", high);
 		println!("Low u64: {}", low);
 	}

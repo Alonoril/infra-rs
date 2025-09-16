@@ -1,6 +1,6 @@
 use crate::result::AppResult;
 
-/// 使用方式
+/// Usage
 ///
 /// assert_true!(self.module_name, err!(&BcErr::InvalidParams, "module_name is empty"));
 #[macro_export]

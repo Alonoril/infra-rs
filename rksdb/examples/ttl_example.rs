@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
 use tempfile::TempDir;
 
-// 定义业务数据结构
+// Define business data structure
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Encode, Decode)]
 struct UserSessionKey {
     user_id: u64,
@@ -28,7 +28,7 @@ struct UserSessionValue {
     device_info: String,
 }
 
-// 定义Schema
+// Define schema
 rksdb_infra::define_schema!(
     UserSessionSchema,
     UserSessionKey,
@@ -36,14 +36,14 @@ rksdb_infra::define_schema!(
     "user_sessions"
 );
 
-// 实现编码
+// Implement codec
 rksdb_infra::impl_schema_bin_codec!(UserSessionSchema, UserSessionKey, UserSessionValue);
 
 fn create_db_with_ttl() -> Result<Arc<RksDB>, Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
     let path = temp_dir.path().to_path_buf();
     
-    // 获取所有需要的列族，包括TTL相关的列族
+    // Get all required column families, including TTL ones
     let mut column_families = vec![UserSessionSchema::COLUMN_FAMILY_NAME];
     column_families.extend(RksDB::get_ttl_column_families());
     
@@ -58,16 +58,16 @@ fn create_db_with_ttl() -> Result<Arc<RksDB>, Box<dyn std::error::Error>> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 初始化日志（简化版本）
+    // Initialize logging (simplified)
     // tracing_subscriber::fmt::init();
     
-    println!("=== RocksDB TTL 功能示例 ===\n");
+    println!("=== RocksDB TTL Feature Example ===\n");
     
-    // 创建数据库
+    // Create database
     let db = create_db_with_ttl()?;
-    println!("1. 数据库创建成功");
+    println!("1. Database created successfully");
     
-    // 创建用户会话数据
+    // Create user session data
     let session_key = UserSessionKey {
         user_id: 12345,
         session_id: "sess_abc123".to_string(),
@@ -79,42 +79,42 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         device_info: "iPhone 15 Pro".to_string(),
     };
     
-    // 设置5秒后过期的会话数据
+    // Set session to expire in 5 seconds
     let expire_time = timestamp_after_seconds(5);
     db.put_with_ttl::<UserSessionSchema>(&session_key, &session_value, expire_time)?;
-    println!("2. 写入会话数据，将在5秒后过期");
+    println!("2. Write session data that expires in 5 seconds");
     
-    // 立即读取数据（应该能正常获取）
+    // Read immediately (should succeed)
     let result = db.get_check_ttl::<UserSessionSchema>(&session_key)?;
     match result {
-        Some(value) => println!("3. 立即读取成功: {:?}", value),
-        None => println!("3. 立即读取失败"),
+        Some(value) => println!("3. Immediate read success: {:?}", value),
+        None => println!("3. Immediate read failed"),
     }
     
-    // 等待3秒（数据尚未过期）
-    println!("4. 等待3秒...");
+    // Wait 3 seconds (not expired yet)
+    println!("4. Waiting 3 seconds...");
     tokio::time::sleep(Duration::from_secs(3)).await;
     
     let result = db.get_check_ttl::<UserSessionSchema>(&session_key)?;
     match result {
-        Some(value) => println!("5. 3秒后读取成功: {:?}", value),
-        None => println!("5. 3秒后读取失败（数据已过期）"),
+        Some(value) => println!("5. Read after 3s success: {:?}", value),
+        None => println!("5. Read after 3s failed (expired)"),
     }
     
-    // 等待另外3秒（总计6秒，数据应该过期）
-    println!("6. 再等待3秒...");
+    // Wait another 3 seconds (6s total, should be expired)
+    println!("6. Waiting another 3 seconds...");
     tokio::time::sleep(Duration::from_secs(3)).await;
     
     let result = db.get_check_ttl::<UserSessionSchema>(&session_key)?;
     match result {
-        Some(value) => println!("7. 6秒后读取成功: {:?}", value),
-        None => println!("7. 6秒后读取失败（数据已过期）"),
+        Some(value) => println!("7. Read after 6s success: {:?}", value),
+        None => println!("7. Read after 6s failed (expired)"),
     }
     
-    // 演示定时清理功能
-    println!("\n=== 定时清理功能演示 ===");
+    // Demonstrate scheduled cleanup
+    println!("\n=== Scheduled cleanup demo ===");
     
-    // 写入多个过期数据
+    // Write multiple expired entries
     for i in 0..5 {
         let key = UserSessionKey {
             user_id: 1000 + i,
@@ -122,33 +122,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
         let value = UserSessionValue {
             access_token: format!("expired_token_{}", i),
-            last_activity: current_timestamp() - 10, // 10秒前过期
+            last_activity: current_timestamp() - 10, // expired 10 seconds ago
             device_info: "Test Device".to_string(),
         };
-        let past_time = current_timestamp() - 5; // 5秒前过期
+        let past_time = current_timestamp() - 5; // expired 5 seconds ago
         db.put_with_ttl::<UserSessionSchema>(&key, &value, past_time)?;
     }
-    println!("8. 写入5个已过期的会话数据");
+    println!("8. Wrote 5 expired session entries");
     
-    // 配置并启动TTL清理调度器
+    // Configure and start TTL cleanup scheduler
     let config = TtlScheduleConfig {
-        cleanup_interval_seconds: 2, // 2秒清理一次
+        cleanup_interval_seconds: 2, // clean every 2 seconds
         enable_cleanup: true,
         max_cleanup_batch_size: 100,
     };
     
     let mut scheduler = RksdbTtlScheduler::new(Arc::clone(&db), config);
     scheduler.start()?;
-    println!("9. TTL清理调度器已启动，每2秒清理一次");
+    println!("9. TTL scheduler started, cleaning every 2 seconds");
     
-    // 等待清理完成
+    // Wait for cleanup to complete
     tokio::time::sleep(Duration::from_secs(3)).await;
     
-    // 立即触发一次清理
+    // Trigger an immediate cleanup
     let cleanup_time = scheduler.trigger_cleanup()?;
-    println!("10. 手动触发清理完成，清理时间戳: {}", cleanup_time);
+    println!("10. Manual cleanup triggered, timestamp: {}", cleanup_time);
     
-    // 写入一些有效数据（10分钟后过期）
+    // Write some valid data (expires in 10 minutes)
     for i in 0..3 {
         let key = UserSessionKey {
             user_id: 2000 + i,
@@ -162,24 +162,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let future_time = timestamp_after_minutes(10);
         db.put_with_ttl::<UserSessionSchema>(&key, &value, future_time)?;
     }
-    println!("11. 写入3个有效的会话数据（10分钟后过期）");
+    println!("11. Wrote 3 valid session entries (expire in 10 minutes)");
     
-    // 验证有效数据是否能正常读取
+    // Verify valid data can be read
     let valid_key = UserSessionKey {
         user_id: 2000,
         session_id: "valid_sess_0".to_string(),
     };
     let result = db.get_check_ttl::<UserSessionSchema>(&valid_key)?;
     match result {
-        Some(value) => println!("12. 有效数据读取成功: {:?}", value),
-        None => println!("12. 有效数据读取失败"),
+        Some(value) => println!("12. Valid data read success: {:?}", value),
+        None => println!("12. Valid data read failed"),
     }
     
-    // 停止调度器
+    // Stop scheduler
     scheduler.stop().await?;
-    println!("13. TTL清理调度器已停止");
+    println!("13. TTL scheduler stopped");
     
-    println!("\n=== TTL 功能演示完成 ===");
+    println!("\n=== TTL feature demo complete ===");
     
     Ok(())
 } 

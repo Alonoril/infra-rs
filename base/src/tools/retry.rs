@@ -50,7 +50,7 @@ where
     F: Fn() -> Fut,
     Fut: Future<Output = Result<Out, Err>>,
 {
-    /// max_retries默认3
+    /// Default max_retries is 3
     pub fn run(max_retries: Option<usize>, fn_fut: F) -> Self {
         Self {
             operation: fn_fut,

@@ -1,6 +1,6 @@
 use tokio::io::{self, AsyncWriteExt};
 
-/// 异步println宏
+/// Async println macro
 #[macro_export]
 macro_rules! aprintln {
     () => {

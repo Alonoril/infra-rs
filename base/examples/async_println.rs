@@ -1,7 +1,7 @@
 use base_infra::aprintln;
 use tokio::io;
 
-// 使用示例
+// Usage example
 #[tokio::main]
 async fn main() -> io::Result<()> {
     aprintln!();

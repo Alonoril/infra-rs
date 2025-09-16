@@ -1,21 +1,21 @@
-//! 统一的基础 wrapper 类型，用于包装大整数和地址类型
+//! Unified base wrapper types for big integers and address types
 //! 
-//! 这些类型作为基础类型，可以在不同的模块中通过实现特定的 trait 来扩展功能：
-//! - 在 sql-infra 中实现数据库相关的 traits（TryGetable, ValueType 等）
-//! - 在 alloy-ext 中实现二进制序列化 traits（bincode::Encode/Decode）
+//! These serve as base types that can be extended by implementing traits:
+//! - In sql-infra for DB-related traits (TryGetable, ValueType, etc.)
+//! - In alloy-ext for binary serialization traits (bincode::Encode/Decode)
 
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 use std::str::FromStr;
 
 // =============================================================================
-// 宏定义：生成基础包装类型和基础实现
+// Macro: generate base wrapper types and base impls
 // =============================================================================
 
-/// 宏：生成基础包装类型和通用实现
-/// 参考 uint_types.rs 的设计，自动推断错误类型
+/// Macro: generate base wrapper types and common impls
+/// Refer to uint_types.rs design, auto-infer error types
 macro_rules! define_primitive_wrapper {
-    // alloy_primitives 数字类型（U256, U128）
+    // alloy_primitives numeric types (U256, U128)
     ($wrapper_name:ident, alloy_primitives::U256, alloy_uint) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[repr(transparent)]
@@ -92,7 +92,7 @@ macro_rules! define_primitive_wrapper {
         }
     };
     
-    // alloy_primitives 地址类型
+    // alloy_primitives address type
     ($wrapper_name:ident, alloy_primitives::Address, alloy_primitive) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[repr(transparent)]
@@ -125,7 +125,7 @@ macro_rules! define_primitive_wrapper {
         }
     };
     
-    // 简单类型（u64）
+    // Simple type (u64)
     ($wrapper_name:ident, u64, simple) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         #[cfg_attr(feature = "bincode", derive(bincode::Encode, bincode::Decode))]
@@ -160,73 +160,73 @@ macro_rules! define_primitive_wrapper {
     };
 }
 
-/// 宏：为包装类型添加便捷方法
+/// Macro: add convenience methods for wrapper types
 macro_rules! impl_wrapper_utils {
-    // U256 特定方法
+    // U256 specific methods
     ($wrapper_name:ident, U256) => {
         impl $wrapper_name {
-            /// 创建一个零值
+            /// Create a zero value
             pub const ZERO: Self = Self(alloy_primitives::U256::ZERO);
             
-            /// 创建一个最大值
+            /// Create a max value
             pub const MAX: Self = Self(alloy_primitives::U256::MAX);
             
-            /// 转换为小端字节数组
+            /// Convert to little-endian bytes
             pub fn to_le_bytes(&self) -> [u8; 32] {
                 self.0.to_le_bytes()
             }
             
-            /// 从小端字节数组创建
+            /// Create from little-endian bytes
             pub fn from_le_slice(slice: &[u8]) -> Self {
                 Self(alloy_primitives::U256::from_le_slice(slice))
             }
         }
     };
     
-    // U128 特定方法
+    // U128 specific methods
     ($wrapper_name:ident, U128) => {
         impl $wrapper_name {
-            /// 创建一个零值
+            /// Create a zero value
             pub const ZERO: Self = Self(alloy_primitives::U128::ZERO);
             
-            /// 创建一个最大值
+            /// Create a max value
             pub const MAX: Self = Self(alloy_primitives::U128::MAX);
             
-            /// 转换为小端字节数组
+            /// Convert to little-endian bytes
             pub fn to_le_bytes(&self) -> [u8; 16] {
                 self.0.to_le_bytes()
             }
             
-            /// 从小端字节数组创建
+            /// Create from little-endian bytes
             pub fn from_le_slice(slice: &[u8]) -> Self {
                 Self(alloy_primitives::U128::from_le_slice(slice))
             }
         }
     };
     
-    // u64 特定方法
+    // u64 specific methods
     ($wrapper_name:ident, u64) => {
         impl $wrapper_name {
-            /// 创建一个零值
+            /// Create a zero value
             pub const ZERO: Self = Self(0);
             
-            /// 创建一个最大值
+            /// Create a max value
             pub const MAX: Self = Self(u64::MAX);
         }
     };
     
-    // Address 特定方法
+    // Address specific methods
     ($wrapper_name:ident, Address) => {
         impl $wrapper_name {
-            /// 创建一个零地址
+            /// Create a zero address
             pub const ZERO: Self = Self(alloy_primitives::Address::ZERO);
             
-            /// 获取原始字节
+            /// Get raw bytes
             pub fn as_bytes(&self) -> &[u8; 20] {
                 self.0.as_ref()
             }
             
-            /// 从字节数组创建
+            /// Create from byte array
             pub fn from_bytes(bytes: [u8; 20]) -> Self {
                 Self(alloy_primitives::Address::from(bytes))
             }
@@ -235,22 +235,22 @@ macro_rules! impl_wrapper_utils {
 }
 
 // =============================================================================
-// 生成包装类型 - 参考 uint_types.rs 的简洁模式
+// Generate wrapper types - compact pattern like uint_types.rs
 // =============================================================================
 
-// 使用宏生成 U256Wrapper
+// Generate U256Wrapper via macro
 define_primitive_wrapper!(U256Wrapper, alloy_primitives::U256, alloy_uint);
 impl_wrapper_utils!(U256Wrapper, U256);
 
-// 使用宏生成 U128Wrapper  
+// Generate U128Wrapper via macro
 define_primitive_wrapper!(U128Wrapper, alloy_primitives::U128, alloy_uint);
 impl_wrapper_utils!(U128Wrapper, U128);
 
-// 使用宏生成 U64Wrapper
+// Generate U64Wrapper via macro
 define_primitive_wrapper!(U64Wrapper, u64, simple);
 impl_wrapper_utils!(U64Wrapper, u64);
 
-// 使用宏生成 AddressWrapper
+// Generate AddressWrapper via macro
 define_primitive_wrapper!(AddressWrapper, alloy_primitives::Address, alloy_primitive);
 impl_wrapper_utils!(AddressWrapper, Address);
 
@@ -260,7 +260,7 @@ mod tests {
 
     #[test]
     fn test_u256_wrapper() {
-        // 测试基本转换
+        // Test basic conversions
         let val = alloy_primitives::U256::from(12345u64);
         let wrapper = U256Wrapper::from(val);
         assert_eq!(wrapper.0, val);
@@ -268,14 +268,14 @@ mod tests {
         let back: alloy_primitives::U256 = wrapper.into();
         assert_eq!(back, val);
         
-        // 测试 Display
+        // Test Display
         assert_eq!(wrapper.to_string(), "12345");
         
-        // 测试从 u64 创建
+        // Test create from u64
         let wrapper2 = U256Wrapper::from(12345u64);
         assert_eq!(wrapper, wrapper2);
         
-        // 测试常量
+        // Test constants
         assert_eq!(U256Wrapper::ZERO.0, alloy_primitives::U256::ZERO);
         assert_eq!(U256Wrapper::MAX.0, alloy_primitives::U256::MAX);
     }
@@ -331,7 +331,7 @@ mod tests {
 
     #[test]
     fn test_serialization() {
-        // 测试 serde 序列化
+        // Test serde serialization
         let wrapper = U256Wrapper::from(12345u64);
         let json = serde_json::to_string(&wrapper).unwrap();
         let deserialized: U256Wrapper = serde_json::from_str(&json).unwrap();

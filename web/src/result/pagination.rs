@@ -12,21 +12,21 @@ where
     fn to_page_query(&self) -> PageQuery;
 }
 
-/// 交易订单列表响应 paged
+/// Pagination response
 #[cfg(feature = "utoipa")]
 #[derive(Debug, Serialize, Deserialize,ToSchema )]
 pub struct PageResp<T: ToSchema> {
-    /// 交易订单列表
+    /// Paged data list
     pub list: Vec<T>,
-    /// 分页信息
+    /// Pagination info
     pub pagination: Pagination,
 }
 #[cfg(not(feature = "utoipa"))]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PageResp<T> {
-    /// 交易订单列表
+    /// Paged data list
     pub list: Vec<T>,
-    /// 分页信息
+    /// Pagination info
     pub pagination: Pagination,
 }
 
@@ -57,15 +57,15 @@ impl<T> PageResp<T> {
     }
 }
 
-/// Api分页查询
+/// API pagination query
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PageParams {
-    /// 页码，从1开始
+    /// Page number, starting from 1
     #[serde(default = "default_page")]
     pub page: u32,
-    /// 每页大小
+    /// Page size
     #[serde(default = "default_page_size")]
     pub page_size: u32,
 }
@@ -78,18 +78,18 @@ fn default_page_size() -> u32 {
     20
 }
 
-/// 分页信息
+/// Pagination info
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Pagination {
-    /// 当前页码
+    /// Current page number
     pub page: u64,
-    /// 每页大小
+    /// Page size
     pub page_size: u64,
-    /// 总记录数
+    /// Total record count
     pub total: u64,
-    /// 总页数
+    /// Total page count
     pub total_pages: u64,
 }
 impl Pagination {

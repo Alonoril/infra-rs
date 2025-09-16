@@ -107,6 +107,6 @@ mod tests {
         let error = SysErr::SystemError;
         println!("Error Code: {}", error.code());
         println!("Error Message: {}", error.message());
-        println!("Error: {}", error); // 通过 Display trait 打印
+        println!("Error: {}", error); // Print via Display trait
     }
 }

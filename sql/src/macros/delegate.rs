@@ -1,9 +1,9 @@
-/// 自动生成 trait 定义和委托实现的宏
+/// Macro to auto-generate trait definitions and delegate implementations
 ///
-/// 这个宏可以同时生成 trait 定义和为指定结构体生成委托实现。
-/// 它简化了需要手动定义 trait 然后再使用 auto_delegate_trait! 的流程。
+/// This macro generates a trait and a delegate implementation for a struct.
+/// It simplifies manually defining a trait and then using auto_delegate_trait!.
 ///
-/// # 语法
+/// # Syntax
 ///
 /// ```rust
 /// use sql_infra::autogen_delegate_repo_trait;
@@ -12,7 +12,7 @@
 ///     impl TraitName for StructName {
 ///         delegate_to: method_name();
 ///
-///         // 手动指定 trait 的所有方法签名
+///         // Manually specify all trait method signatures
 ///         async fn method1(&self, param1: Type1) -> ReturnType1;
 ///         async fn method2(&self, param1: Type1, param2: Type2) -> ReturnType2;
 ///         fn sync_method(&self, param: Type) -> ReturnType;
@@ -20,9 +20,9 @@
 /// }
 /// ```
 ///
-/// # 生成的代码
+/// # Generated code
 ///
-/// 上述宏调用会生成：
+/// The macro invocation above will generate:
 ///
 /// ```rust
 /// #[async_trait::async_trait]
@@ -46,23 +46,23 @@
 /// }
 /// ```
 ///
-/// # 特性
+/// # Features
 ///
-/// - **自动生成 trait**: 根据方法签名自动生成 trait 定义
-/// - **自动生成委托实现**: 为指定结构体生成委托实现
-/// - **异步支持**: 自动处理 `async` 方法和 `.await` 调用
-/// - **类型安全**: 编译时检查方法签名匹配
-/// - **简化语法**: 一个宏调用完成两个任务
+/// - **Auto-generate trait**: Create trait definitions from method signatures
+/// - **Auto-generate delegate impl**: Generate delegate implementation for the struct
+/// - **Async support**: Automatically handle `async` methods and `.await` calls
+/// - **Type safety**: Compile-time checking for signature matching
+/// - **Simplified syntax**: One macro to do both
 ///
-/// # 限制
+/// # Limitations
 ///
-/// - 委托目标必须实现相同的 trait
-/// - 需要手动指定所有方法签名（由于 Rust 宏系统限制）
-/// - 委托方法调用必须是简单的方法调用（不支持复杂表达式）
-/// - 生成的 trait 总是 public 的
+/// - The delegate target must implement the same trait
+/// - All method signatures must be specified manually (Rust macro system limitation)
+/// - Delegated method calls must be simple (no complex expressions)
+/// - The generated trait is always public
 #[macro_export]
 macro_rules! autogen_delegate_repo_trait {
-    // 基本形式：impl TraitName for StructName
+    // Basic form: impl TraitName for StructName
     (
         impl $trait_name:ident for $struct_name:ident {
             delegate_to: $delegate_method:ident();
@@ -82,7 +82,7 @@ macro_rules! autogen_delegate_repo_trait {
             )*
         }
     ) => {
-        // 首先生成 trait 定义
+        // First, generate the trait definition
         #[async_trait::async_trait]
         pub trait $trait_name {
             $(
@@ -94,7 +94,7 @@ macro_rules! autogen_delegate_repo_trait {
             )*
         }
 
-        // 然后生成委托实现
+        // Then, generate the delegate implementation
         #[async_trait::async_trait]
         impl $trait_name for $struct_name {
             $(

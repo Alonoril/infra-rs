@@ -3,7 +3,7 @@ use bigdecimal::BigDecimal;
 use bigdecimal::num_bigint::{BigInt, BigUint, Sign};
 use ruint::aliases::{U128, U256};
 
-/// 宏：实现 DbUxxx → BigDecimal 的转换
+/// Macro: implement conversion DbUxxx → BigDecimal
 macro_rules! impl_from_dbuint_to_bigdecimal {
     ($db_type:ty, $uint_type:ty, $byte_size:expr) => {
         impl From<$db_type> for BigDecimal {
@@ -18,7 +18,7 @@ macro_rules! impl_from_dbuint_to_bigdecimal {
     };
 }
 
-/// 宏：实现 BigDecimal → DbUxxx 的转换
+/// Macro: implement conversion BigDecimal → DbUxxx
 macro_rules! impl_try_from_bigdecimal_to_dbuint {
     ($db_type:ty, $uint_type:ty, $byte_size:expr) => {
         impl TryFrom<BigDecimal> for $db_type {
@@ -39,7 +39,7 @@ macro_rules! impl_try_from_bigdecimal_to_dbuint {
                     return Err(concat!("value too large for ", stringify!($uint_type)));
                 }
 
-                // 左侧补零到指定字节数
+                // Pad with leading zeros to the target byte length
                 let mut buf = [0u8; $byte_size];
                 buf[$byte_size - bytes.len()..].copy_from_slice(&bytes);
                 Ok(<$uint_type>::from_be_bytes(buf).into())
@@ -48,7 +48,7 @@ macro_rules! impl_try_from_bigdecimal_to_dbuint {
     };
 }
 
-// 使用宏生成实现
+// Use macro to generate implementations
 impl_from_dbuint_to_bigdecimal!(DbU256, U256, 32);
 impl_from_dbuint_to_bigdecimal!(DbU128, U128, 16);
 

@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 use std::str::FromStr;
 
-// 宏定义：生成基本的DbUxxx包装类型
+// Macro: generate basic DbUxxx wrapper types
 macro_rules! define_db_uint_wrapper {
-    // 简单类型（如u64），直接包装
+    // Simple types (e.g., u64), direct wrapper
     ($wrapper_name:ident, $inner_type:ty) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
         pub struct $wrapper_name(pub $inner_type);
@@ -33,7 +33,7 @@ macro_rules! define_db_uint_wrapper {
             }
         }
     };
-    // 复杂类型（如U128、U256），需要自定义序列化
+    // Complex types (e.g., U128, U256), require custom serialization
     ($wrapper_name:ident, $inner_type:ty, with_custom_serde) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
         pub struct $wrapper_name(pub $inner_type);
@@ -58,7 +58,7 @@ macro_rules! define_db_uint_wrapper {
     };
 }
 
-// 宏定义：为需要自定义序列化的类型实现Serialize/Deserialize
+// Macro: implement Serialize/Deserialize for types requiring custom serialization
 macro_rules! impl_db_uint_serde {
     ($wrapper_name:ident, $inner_type:ty) => {
         impl Serialize for $wrapper_name {
@@ -84,9 +84,9 @@ macro_rules! impl_db_uint_serde {
     };
 }
 
-// 宏定义：实现TryGetable trait
+// Macro: implement TryGetable trait
 macro_rules! impl_db_uint_try_getable {
-    // u64特殊处理：从i64转换
+    // Special handling for u64: convert from i64
     ($wrapper_name:ident, u64) => {
         impl TryGetable for $wrapper_name {
             fn try_get_by<I: ColIdx>(res: &QueryResult, idx: I) -> Result<Self, TryGetError> {
@@ -101,7 +101,7 @@ macro_rules! impl_db_uint_try_getable {
             }
         }
     };
-    // U128/U256等：从BigDecimal转换
+    // U128/U256 etc.: convert from BigDecimal
     ($wrapper_name:ident, $inner_type:ty) => {
         impl TryGetable for $wrapper_name {
             fn try_get_by<I: ColIdx>(res: &QueryResult, idx: I) -> Result<Self, TryGetError> {
@@ -116,9 +116,9 @@ macro_rules! impl_db_uint_try_getable {
     };
 }
 
-// 宏定义：实现ValueType相关traits
+// Macro: implement ValueType-related traits
 macro_rules! impl_db_uint_value_type {
-    // u64版本
+    // u64 version
     ($wrapper_name:ident, u64) => {
         impl ValueType for $wrapper_name {
             fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
@@ -160,7 +160,7 @@ macro_rules! impl_db_uint_value_type {
             }
         }
     };
-    // BigDecimal版本（U128/U256）
+    // BigDecimal version (U128/U256)
     ($wrapper_name:ident, $inner_type:ty, $precision:expr) => {
         impl ValueType for $wrapper_name {
             fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
@@ -210,28 +210,28 @@ macro_rules! impl_db_uint_value_type {
     };
 }
 
-// 使用宏生成DbU64
+// Generate DbU64 via macro
 define_db_uint_wrapper!(DbU64, u64);
 impl_db_uint_try_getable!(DbU64, u64);
 
-// 使用宏生成DbU128
+// Generate DbU128 via macro
 define_db_uint_wrapper!(DbU128, U128, with_custom_serde);
 impl_db_uint_serde!(DbU128, U128);
 impl_db_uint_try_getable!(DbU128, U128);
 
-// 使用宏生成DbU256
+// Generate DbU256 via macro
 define_db_uint_wrapper!(DbU256, U256, with_custom_serde);
 impl_db_uint_serde!(DbU256, U256);
 impl_db_uint_try_getable!(DbU256, U256);
 
-// 使用宏实现ValueType相关traits
+// Implement ValueType-related traits via macros
 impl_db_uint_value_type!(DbU64, u64);
 
-// 使用宏实现ValueType相关traits
+// Implement ValueType-related traits via macros
 // U128 max is ~340 undecillion (38 digits), so NUMERIC(39,0) is sufficient
 impl_db_uint_value_type!(DbU128, U128, 39);
 
-// 使用宏实现ValueType相关traits
+// Implement ValueType-related traits via macros
 // U256 max is ~115 quattuorvigintillion (78 digits), so NUMERIC(78,0) is sufficient
 impl_db_uint_value_type!(DbU256, U256, 78);
 
@@ -503,34 +503,34 @@ mod tests {
 }
 
 // =============================================================================
-// 扩展示例：如何添加新的DbUxxx类型
+// Extension example: how to add a new DbUxxx type
 // =============================================================================
 // 
-// 使用这些宏，您可以轻松添加新的数据库包装类型。例如，添加DbU512：
+// With these macros, you can easily add new DB wrapper types. For example, DbU512:
 //
-// 1. 首先在顶部导入必要的类型：
+// 1. Import necessary types at the top:
 //    use ruint::aliases::U512;
 //
-// 2. 使用宏生成类型定义和实现：
+// 2. Use macros to generate type definitions and impls:
 //    
-//    // 生成DbU512包装类型（需要自定义序列化）
+//    // Generate DbU512 wrapper type (needs custom serde)
 //    define_db_uint_wrapper!(DbU512, U512, with_custom_serde);
 //    
-//    // 实现自定义序列化
+//    // Implement custom serde
 //    impl_db_uint_serde!(DbU512, U512);
 //    
-//    // 实现TryGetable trait
+//    // Implement TryGetable trait
 //    impl_db_uint_try_getable!(DbU512, U512);
 //    
-//    // 实现ValueType相关traits
-//    // U512 max 有155位数字，所以使用 NUMERIC(155,0)
+//    // Implement ValueType-related traits
+//    // U512 max has 155 digits, so use NUMERIC(155,0)
 //    impl_db_uint_value_type!(DbU512, U512, 155);
 //
-// 3. 在bigdecimal.rs中添加TryFrom实现：
+// 3. Add TryFrom in bigdecimal.rs:
 //    impl TryFrom<BigDecimal> for DbU512 {
 //        type Error = &'static str;
 //        fn try_from(value: BigDecimal) -> Result<Self, Self::Error> {
-//            // 实现转换逻辑
+//            // Implement conversion logic
 //        }
 //    }
 //

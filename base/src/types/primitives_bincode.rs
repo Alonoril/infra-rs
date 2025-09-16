@@ -1,21 +1,21 @@
-//! Bincode 实现的兼容性层
+//! Compatibility layer for bincode implementations
 //! 
-//! 由于 alloy_primitives 的类型没有实现 bincode traits，
-//! 我们在这里为 wrapper 类型提供手动实现。
+//! Since alloy_primitives types do not implement bincode traits,
+//! we provide manual implementations for wrapper types here.
 
 use super::primitives::{U256Wrapper, U128Wrapper, U64Wrapper, AddressWrapper};
 use crate::codec::bincode::{BinEncodeExt, BinDecodeExt};
 use crate::result::AppResult;
 
-/// 为 wrapper 类型提供便捷的 bincode 编码解码方法
+/// Convenience bincode encode/decode for wrapper types
 pub trait WrapperBinCodec: Sized {
     fn wrapper_encode(&self) -> AppResult<Vec<u8>>;
     fn wrapper_decode(data: &[u8]) -> AppResult<Self>;
 }
 
-// 定义宏来为不同的 wrapper 类型实现 bincode 编码解码
+// Define macro to implement bincode encode/decode for various wrapper types
 macro_rules! impl_wrapper_bincode {
-    // 对于有 to_le_bytes/from_le_slice 方法的类型（U256, U128）
+    // Types with to_le_bytes/from_le_slice (U256, U128)
     ($wrapper:ty, $size:expr, le_bytes) => {
         impl WrapperBinCodec for $wrapper {
             fn wrapper_encode(&self) -> AppResult<Vec<u8>> {
@@ -30,7 +30,7 @@ macro_rules! impl_wrapper_bincode {
         }
     };
     
-    // 对于简单包装的类型（U64）
+    // Simple wrapper types (U64)
     ($wrapper:ty, simple) => {
         impl WrapperBinCodec for $wrapper {
             fn wrapper_encode(&self) -> AppResult<Vec<u8>> {
@@ -44,7 +44,7 @@ macro_rules! impl_wrapper_bincode {
         }
     };
     
-    // 对于地址类型
+    // Address types
     ($wrapper:ty, address) => {
         impl WrapperBinCodec for $wrapper {
             fn wrapper_encode(&self) -> AppResult<Vec<u8>> {
@@ -60,7 +60,7 @@ macro_rules! impl_wrapper_bincode {
     };
 }
 
-// 应用宏为各种 wrapper 类型实现 bincode
+// Apply macro to implement bincode for wrapper types
 impl_wrapper_bincode!(U256Wrapper, 32, le_bytes);
 impl_wrapper_bincode!(U128Wrapper, 16, le_bytes);
 impl_wrapper_bincode!(U64Wrapper, simple);

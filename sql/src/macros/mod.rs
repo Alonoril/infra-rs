@@ -1,6 +1,6 @@
-/// 宏模块
+/// Macros module
 ///
-/// 这个模块包含了项目中使用的各种宏定义，包括：
-/// - 委托模式宏 (delegate.rs)
-/// - 其他通用宏
+/// This module contains various macro definitions used across the project, including:
+/// - Delegation macro (delegate.rs)
+/// - Other common macros
 pub mod delegate;

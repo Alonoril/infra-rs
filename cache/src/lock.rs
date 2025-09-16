@@ -13,7 +13,7 @@ use tokio::sync::Mutex;
 pub static CACHE_MUTEX_MAP: LazyLock<Arc<Mutex<HashMap<String, Arc<Mutex<()>>>>>> =
     LazyLock::new(|| Arc::new(Mutex::new(HashMap::new())));
 
-// 定义默认超时时间
+// Define default timeout
 pub const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_millis(500);
 
 #[macro_export]
@@ -24,7 +24,7 @@ macro_rules! cacheable_with_lock {
         use tokio::sync::Mutex;
         use tokio::time::timeout;
 
-        // 尝试从缓存中读取数据
+        // Try reading from cache
         match $cache.async_load::<$schema>($key).await {
             Ok(Some(cached_value)) => {
                 tracing::info!("{}: cache hit", $biz_name);
@@ -34,7 +34,7 @@ macro_rules! cacheable_with_lock {
             Err(e) => return Err(CacheError::CacheOperation(e).into()),
         }
 
-        // 获取基于键的细粒度锁（带超时）
+        // Acquire fine-grained lock by key (with timeout)
         let mutex_map = $crate::cache::lock::CACHE_MUTEX_MAP.clone();
         let key_str = format!("{:?}", $key);
         let mutex = {
@@ -44,14 +44,14 @@ macro_rules! cacheable_with_lock {
                 .clone()
         };
 
-        // 尝试获取锁（带超时机制）
+        // Try acquiring the lock (with timeout)
         let timeout_ms = $crate::cache::lock::DEFAULT_LOCK_TIMEOUT;
         let _guard = match timeout(timeout_ms, mutex.lock()).await {
             Ok(guard) => guard,
             Err(_) => return Err(CacheError::LockTimeout(key_str.clone()).into()),
         };
 
-        // 二次缓存检查
+        // Second cache check
         match $cache.async_load::<$schema>($key).await {
             Ok(Some(cached_value)) => {
                 tracing::warn!("{}: cache hit (after lock)", $biz_name);
@@ -61,7 +61,7 @@ macro_rules! cacheable_with_lock {
             Err(e) => return Err(CacheError::CacheOperation(e).into()),
         }
 
-        // 执行数据获取
+        // Execute data fetch
         let result = $fetch.await?; //.map_err(|e| CacheError::DataFetch(e))?;
 
         $cache
@@ -69,7 +69,7 @@ macro_rules! cacheable_with_lock {
             .await
             .map_err(|e| CacheError::CacheOperation(e))?;
 
-        // 清理未使用的锁
+        // Cleanup unused locks
         let mut map = mutex_map.lock().await;
         if map
             .get(&key_str)
@@ -83,7 +83,7 @@ macro_rules! cacheable_with_lock {
     }};
 }
 
-// 自定义错误类型（示例）
+// Custom error type (example)
 #[derive(Debug, thiserror::Error)]
 pub enum CacheError {
     #[error("Cache operation failed: {0}")]
@@ -95,53 +95,6 @@ pub enum CacheError {
     #[error("Data fetch failed: {0}")]
     DataFetch(#[source] BaseError),
 }
-
-// #[macro_export]
-// macro_rules! cacheable_with_lock {
-//     // ($cache:expr, $key:expr, $param:expr, $fetch:expr) => {{
-//     (($key:expr, $biz_name:expr),($cache:expr, $schema:ty), $fetch:expr) => {{
-//         // 尝试从缓存中读取数据
-//         if let Some(cached_value) = $cache.async_load::<$schema>($key).await? {
-//             tracing::info!("{}: cache hit", $biz_name);
-//             return Ok(cached_value);
-//         }
-//
-//         // 获取基于缓存键的细粒度锁
-//         let mutex_map = crate::CACHE_MUTEX_MAP.clone();
-//         let key_str = format!("{:?}", $key); // 将缓存键转换为字符串
-//         let mutex = {
-//             let mut map = mutex_map.lock().await;
-//             map.entry(key_str.clone())
-//                 .or_insert_with(|| Arc::new(Mutex::new(())))
-//                 .clone()
-//         };
-//         let _guard = mutex.lock().await;
-//
-//         // 再次检查缓存
-//         if let Some(cached_value) = $cache.async_load::<$schema>($key).await? {
-//             tracing::warn!("{}: cache hit (after lock)", $biz_name);
-//             return Ok(cached_value);
-//         }
-//
-//         // 缓存未命中，调用数据获取函数
-//         let result = $fetch.await?;
-//
-//         // 将数据存入缓存
-//         $cache.async_store::<$schema>($key, &result).await?;
-//
-//         // 清理锁（可选）
-//         let mut map = mutex_map.lock().await;
-//         if map
-//             .get(&key_str)
-//             .map(|m| Arc::strong_count(m) == 1)
-//             .unwrap_or(false)
-//         {
-//             map.remove(&key_str);
-//         }
-//
-//         Ok(result)
-//     }};
-// }
 
 #[macro_export]
 macro_rules! cacheable {
@@ -187,33 +140,81 @@ where
     Ok(result)
 }
 
+// #[macro_export]
+// macro_rules! cacheable_with_lock {
+//     // ($cache:expr, $key:expr, $param:expr, $fetch:expr) => {{
+//     (($key:expr, $biz_name:expr),($cache:expr, $schema:ty), $fetch:expr) => {{
+//         // Try to read data from cache
+//         if let Some(cached_value) = $cache.async_load::<$schema>($key).await? {
+//             tracing::info!("{}: cache hit", $biz_name);
+//             return Ok(cached_value);
+//         }
+//
+//         // Acquire fine-grained lock based on cache key
+//         let mutex_map = crate::CACHE_MUTEX_MAP.clone();
+//         let key_str = format!("{:?}", $key); // Convert cache key to string
+//         let mutex = {
+//             let mut map = mutex_map.lock().await;
+//             map.entry(key_str.clone())
+//                 .or_insert_with(|| Arc::new(Mutex::new(())))
+//                 .clone()
+//         };
+//         let _guard = mutex.lock().await;
+//
+//         // Check cache again
+//         if let Some(cached_value) = $cache.async_load::<$schema>($key).await? {
+//             tracing::warn!("{}: cache hit (after lock)", $biz_name);
+//             return Ok(cached_value);
+//         }
+//
+//         // Cache miss, call data fetch function
+//         let result = $fetch.await?;
+//
+//         // Store data in cache
+//         $cache.async_store::<$schema>($key, &result).await?;
+//
+//         // Clean up lock (optional)
+//         let mut map = mutex_map.lock().await;
+//         if map
+//             .get(&key_str)
+//             .map(|m| Arc::strong_count(m) == 1)
+//             .unwrap_or(false)
+//         {
+//             map.remove(&key_str);
+//         }
+//
+//         Ok(result)
+//     }};
+// }
+
+
 // pub async fn with_cache<F, G, K, V, E>(
-//     cache_key: K,                                       // 缓存键
-//     cache_load: F,                                      // 缓存加载逻辑
-//     cache_store: G,                                     // 缓存存储逻辑
-//     business_logic: impl Future<Output = Result<V, E>>, // 业务逻辑
+//     cache_key: K,                                       // Cache key
+//     cache_load: F,                                      // Cache loading logic
+//     cache_store: G,                                     // Cache storing logic
+//     business_logic: impl Future<Output = Result<V, E>>, // Business logic
 // ) -> Result<V, E>
 // where
-//     F: Fn(&K) -> Pin<Box<dyn Future<Output = Result<Option<V>, E>> + Send>>, // 缓存加载函数
-//     G: Fn(&K, &V) -> Pin<Box<dyn Future<Output = Result<(), E>> + Send>>,    // 缓存存储函数
-//     K: Clone + Debug + Send + Sync + 'static, // 缓存键需要实现这些 trait
-//     V: Clone + Debug + Send + Sync + 'static, // 缓存值需要实现这些 trait
-//     E: From<BaseError> + Send + Sync + 'static, // 错误类型需要支持从缓存错误转换
+//     F: Fn(&K) -> Pin<Box<dyn Future<Output = Result<Option<V>, E>> + Send>>, // Cache loading function
+//     G: Fn(&K, &V) -> Pin<Box<dyn Future<Output = Result<(), E>> + Send>>,    // Cache storing function
+//     K: Clone + Debug + Send + Sync + 'static, // Cache key needs to implement these traits
+//     V: Clone + Debug + Send + Sync + 'static, // Cache value needs to implement these traits
+//     E: From<BaseError> + Send + Sync + 'static, // Error type needs to support conversion from cache error
 // {
-//     // 尝试从缓存加载数据
+//     // Try to load data from cache
 //     if let Some(cached_value) = cache_load(&cache_key).await? {
 //         info!("Cache hit for key: {:?}", cache_key);
 //         return Ok(cached_value);
 //     }
 //
-//     // 缓存未命中，执行业务逻辑
+//     // Cache miss, execute business logic
 //     info!(
 //         "Cache miss for key: {:?}, executing business logic",
 //         cache_key
 //     );
 //     let result = business_logic.await?;
 //
-//     // 将结果存储到缓存中
+//     // Store the result in cache
 //     cache_store(&cache_key, &result).await?;
 //     info!("Cache stored for key: {:?}", cache_key);
 //
@@ -223,30 +224,30 @@ where
 // use tokio::sync::Mutex;
 // use std::collections::HashMap;
 //
-// // 全局缓存加载锁
+// // Global cache loading lock
 // type CacheMutex<K, V> = Arc<Mutex<HashMap<K, Arc<tokio::sync::Notify>>>>;
 //
 // pub async fn with_cache_mutex<F, G, K, V, E>(
-//     cache_key: K, // 缓存键
-//     cache_load: F, // 缓存加载逻辑
-//     cache_store: G, // 缓存存储逻辑
-//     business_logic: impl Future<Output = Result<V, E>>, // 业务逻辑
-//     cache_mutex: CacheMutex<K, V>, // 全局缓存加载锁
+//     cache_key: K, // Cache key
+//     cache_load: F, // Cache loading logic
+//     cache_store: G, // Cache storing logic
+//     business_logic: impl Future<Output = Result<V, E>>, // Business logic
+//     cache_mutex: CacheMutex<K, V>, // Global cache loading lock
 // ) -> Result<V, E>
 // where
-//     F: Fn(&K) -> Future<Output = Result<Option<V>, E>>, // 缓存加载函数
-//     G: Fn(&K, &V) -> Future<Output = Result<(), E>>, // 缓存存储函数
-//     K: Clone + Debug + Eq + Hash + Send + Sync + 'static, // 缓存键需要实现这些 trait
-//     V: Clone + Debug + Send + Sync + 'static, // 缓存值需要实现这些 trait
-//     E: From<CacheError> + Send + Sync + 'static, // 错误类型需要支持从缓存错误转换
+//     F: Fn(&K) -> Future<Output = Result<Option<V>, E>>, // Cache loading function
+//     G: Fn(&K, &V) -> Future<Output = Result<(), E>>, // Cache storing function
+//     K: Clone + Debug + Eq + Hash + Send + Sync + 'static, // Cache key needs to implement these traits
+//     V: Clone + Debug + Send + Sync + 'static, // Cache value needs to implement these traits
+//     E: From<CacheError> + Send + Sync + 'static, // Error type needs to support conversion from cache error
 // {
-//     // 尝试从缓存加载数据
+//     // Try to load data from cache
 //     if let Some(cached_value) = cache_load(&cache_key).await? {
 //         info!("Cache hit for key: {:?}", cache_key);
 //         return Ok(cached_value);
 //     }
 //
-//     // 缓存未命中，获取锁
+//     // Cache miss, acquire lock
 //     let notify = {
 //         let mut map = cache_mutex.lock().await;
 //         map.entry(cache_key.clone())
@@ -254,15 +255,15 @@ where
 //             .clone()
 //     };
 //
-//     // 检查是否已经有其他请求在加载数据
+//     // Check if another request is already loading data
 //     {
 //         let map = cache_mutex.lock().await;
 //         if let Some(existing_notify) = map.get(&cache_key) {
 //             info!("Waiting for another request to load data for key: {:?}", cache_key);
-//             existing_notify.notified().await; // 等待其他请求完成
-//             drop(map); // 释放锁
+//             existing_notify.notified().await; // Wait for other request to complete
+//             drop(map); // Release lock
 //
-//             // 再次尝试从缓存加载数据
+//             // Try to load data from cache again
 //             if let Some(cached_value) = cache_load(&cache_key).await? {
 //                 info!("Cache hit after waiting for key: {:?}", cache_key);
 //                 return Ok(cached_value);
@@ -270,18 +271,18 @@ where
 //         }
 //     }
 //
-//     // 当前请求负责加载数据
+//     // Current request is responsible for loading data
 //     info!("Cache miss for key: {:?}, executing business logic", cache_key);
 //     let result = business_logic.await?;
 //
-//     // 将结果存储到缓存中
+//     // Store the result in cache
 //     cache_store(&cache_key, &result).await?;
 //     info!("Cache stored for key: {:?}", cache_key);
 //
-//     // 通知其他等待的请求
+//     // Notify other waiting requests
 //     notify.notify_waiters();
 //
-//     // 清理锁
+//     // Clean up lock
 //     {
 //         let mut map = cache_mutex.lock().await;
 //         map.remove(&cache_key);
