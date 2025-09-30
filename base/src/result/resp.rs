@@ -20,10 +20,10 @@ impl<T> RespData<T> {
 }
 
 impl RespData<()> {
-    pub fn with_code(code: &DynErrCode) -> Self {
+    pub fn with_code(code: &DynErrCode, ext: &str) -> Self {
         Self {
             code: code.code().into(),
-            msg: code.message().into(),
+            msg: format!("{} {}", code.message(), ext),
             data: None,
         }
     }
@@ -38,10 +38,10 @@ impl RespData<()> {
 
     pub fn with_app_error(error: AppError) -> Self {
         match error {
-            AppError::ErrCode(code) => Self::with_code(code),
+            AppError::ErrCode(code, ext) => Self::with_code(code, ext),
             AppError::Anyhow(code, ext, e) => Self::with_anyhow(code, ext, e),
             #[cfg(feature = "http")]
-            AppError::HttpErr(code, _status) => Self::with_code(code),
+            AppError::HttpErr(code, status) => Self::with_code(code, &status.to_string()),
         }
     }
 

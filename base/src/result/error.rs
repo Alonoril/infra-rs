@@ -69,6 +69,7 @@ macro_rules! err {
         tracing::error!("{} {}", $code, $msg);
         Err($crate::result::AppError::Anyhow(
             $code,
+            $msg,
             anyhow::anyhow!($msg),
         ))
     }};
@@ -89,22 +90,22 @@ macro_rules! log_err {
 macro_rules! app_err {
     ($code:expr) => {{
         tracing::error!("{}", $code);
-        $crate::result::AppError::ErrCode($code)
+        $crate::result::AppError::ErrCode($code, "")
     }};
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
+        $crate::result::AppError::ErrCode($code, $msg)
     }};
 }
 
-#[macro_export]
-macro_rules! log_app_err {
-    ($code:expr, $msg:expr) => {{
-        tracing::error!("{} {}", $code, $msg);
-        $crate::app_err!($code)
-    }};
-}
+// #[macro_export]
+// macro_rules! log_app_err {
+//     ($code:expr, $msg:expr) => {{
+//         tracing::error!("{} {}", $code, $msg);
+//         $crate::app_err!($code)
+//     }};
+// }
 
 /// use this macro to Option .ok_or_else
 ///
@@ -114,14 +115,14 @@ macro_rules! else_err {
     ($code:expr) => {
         || {
             tracing::error!("{}", $code);
-            $crate::result::AppError::ErrCode($code)
+            $crate::result::AppError::ErrCode($code, "")
         }
     };
 
     ($code:expr, $msg:expr) => {
         || {
             tracing::error!("{} {}", $code, $msg);
-            $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
+            $crate::result::AppError::Anyhow($code, $msg)
         }
     };
 }
@@ -130,12 +131,12 @@ macro_rules! else_err {
 macro_rules! or_err {
     ($code:expr) => {{
         tracing::error!("{}", $code);
-        $crate::result::AppError::ErrCode($code)
+        $crate::result::AppError::ErrCode($code, "")
     }};
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
+        $crate::result::AppError::Anyhow($code, $msg)
     }};
 }
 
@@ -154,7 +155,7 @@ where
 
 #[derive(thiserror::Error)]
 pub enum AppError {
-    ErrCode(&'static DynErrCode),
+    ErrCode(&'static DynErrCode, &'static str),
     Anyhow(&'static DynErrCode, &'static str, anyhow::Error),
     #[cfg(feature = "http")]
     HttpErr(&'static DynErrCode, StatusCode),
@@ -163,10 +164,10 @@ pub enum AppError {
 impl Debug for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            AppError::ErrCode(code) => f
+            AppError::ErrCode(code, ext) => f
                 .debug_struct("AppError")
                 .field("code", &code.code())
-                .field("msg", &code.message())
+                .field("msg", &format!("{} {}", &code.message(), ext))
                 .finish(),
             AppError::Anyhow(code, ext, e) => f
                 .debug_struct("AppError")
@@ -188,7 +189,9 @@ impl Debug for AppError {
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            AppError::ErrCode(code) => write!(f, "ErrCode[{}] {}", code.code(), code.message()),
+            AppError::ErrCode(code, ext) => {
+                write!(f, "ErrCode[{}] {} {}", code.code(), code.message(), ext)
+            }
             AppError::Anyhow(code, ext, e) => {
                 write!(
                     f,
@@ -215,7 +218,7 @@ impl Display for AppError {
 impl AppError {
     pub fn get_reason(&self) -> String {
         match self {
-            AppError::ErrCode(code) => code.to_string(),
+            AppError::ErrCode(code, ext) => format!("{} {}", &code.message(), ext),
             AppError::Anyhow(code, ext, e) => format!("{} {}, reason: {e}", code.message(), ext),
             #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => format!(
@@ -230,7 +233,7 @@ impl AppError {
 
 impl<T: ErrorCode> From<&'static T> for AppError {
     fn from(value: &'static T) -> Self {
-        AppError::ErrCode(value)
+        AppError::ErrCode(value, "")
     }
 }
 impl<T: ErrorCode> From<(&'static T, anyhow::Error)> for AppError {

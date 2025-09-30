@@ -1,5 +1,5 @@
-use base_infra::map_err;
 use base_infra::result::{AppResult, SysErr};
+use base_infra::{err, map_err};
 use std::io::{Error, ErrorKind};
 
 fn main() -> AppResult<()> {
@@ -17,4 +17,8 @@ fn main() -> AppResult<()> {
 fn return_io_err() -> Result<(), std::io::Error> {
     // Err(Error::new(ErrorKind::Other, "Some error"))
     Err(Error::from(ErrorKind::UnexpectedEof))
+}
+
+fn ret_macro_err() -> AppResult<()> {
+    err!(&SysErr::SystemError, "error event")
 }
