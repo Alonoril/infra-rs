@@ -62,15 +62,14 @@ macro_rules! map_err {
 macro_rules! err {
     ($code:expr) => {{
         tracing::error!("{}", $code);
-        Err($crate::result::AppError::ErrCode($code))
+        Err($crate::result::AppError::ErrCode($code, ""))
     }};
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        Err($crate::result::AppError::Anyhow(
+        Err($crate::result::AppError::ErrCode(
             $code,
             $msg,
-            anyhow::anyhow!($msg),
         ))
     }};
 }

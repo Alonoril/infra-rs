@@ -19,6 +19,10 @@ fn return_io_err() -> Result<(), std::io::Error> {
     Err(Error::from(ErrorKind::UnexpectedEof))
 }
 
-fn ret_macro_err() -> AppResult<()> {
+fn ret_ext_macro_err() -> AppResult<()> {
     err!(&SysErr::SystemError, "error event")
+}
+
+fn ret_macro_err() -> AppResult<()> {
+    err!(&SysErr::SystemError)
 }
