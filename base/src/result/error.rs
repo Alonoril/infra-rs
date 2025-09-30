@@ -32,7 +32,8 @@ macro_rules! map_err {
         |err| {
             tracing::debug!("{} {}, reason: {:?}", $code, $msg, err);
             tracing::error!("{} {}, reason: {}", $code, $msg, err);
-            $crate::result::AppError::ExtAnyhow($code, $msg, anyhow::anyhow!(err))
+            let msg = String::from($msg);
+            $crate::result::AppError::ExtAnyhow($code, msg, anyhow::anyhow!(err))
         }
     };
 

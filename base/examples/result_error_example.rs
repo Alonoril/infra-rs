@@ -8,8 +8,7 @@ fn main() -> AppResult<()> {
         .init();
 
     // return_io_err().map_err(map_err!(&SysErr::InternalError))?;
-    let msg = "sdt::io error".into();
-    return_io_err().map_err(map_err!(&SysErr::InternalError, msg))?;
+    return_io_err().map_err(map_err!(&SysErr::InternalError, "sdt::io error"))?;
     Ok(())
 }
 
