@@ -7,8 +7,6 @@ fn main() -> AppResult<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    tracing::debug!("this is a tracing line");
-
     // return_io_err().map_err(map_err!(&SysErr::InternalError))?;
     let msg = "sdt::io error".into();
     return_io_err().map_err(map_err!(&SysErr::InternalError, msg))?;
@@ -21,8 +19,7 @@ fn return_io_err() -> Result<(), std::io::Error> {
 }
 
 fn ret_ext_macro_err() -> AppResult<()> {
-    let msg = "some error".into();
-    err!(&SysErr::SystemError, msg)
+    err!(&SysErr::SystemError, "some error")
 }
 
 fn ret_macro_err() -> AppResult<()> {

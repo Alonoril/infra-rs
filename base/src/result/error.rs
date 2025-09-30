@@ -73,7 +73,8 @@ macro_rules! err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        Err($crate::result::AppError::ExtCode($code, $msg))
+        let msg = String::from($msg);
+        Err($crate::result::AppError::ExtCode($code, msg))
     }};
 }
 
@@ -97,7 +98,8 @@ macro_rules! app_err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        $crate::result::AppError::ErrCode($code, $msg)
+        let msg = String::from($msg);
+        $crate::result::AppError::ExtCode($code, msg)
     }};
 }
 
@@ -124,7 +126,8 @@ macro_rules! else_err {
     ($code:expr, $msg:expr) => {
         || {
             tracing::error!("{} {}", $code, $msg);
-            $crate::result::AppError::ExtCode($code, $msg)
+            let msg = String::from($msg);
+            $crate::result::AppError::ExtCode($code, msg)
         }
     };
 }
@@ -138,7 +141,8 @@ macro_rules! or_err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        $crate::result::AppError::Anyhow($code, $msg)
+        let msg = String::from($msg);
+        $crate::result::AppError::ExtCode($code, msg)
     }};
 }
 
