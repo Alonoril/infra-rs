@@ -32,7 +32,7 @@ macro_rules! map_err {
         |err| {
             tracing::debug!("{} {}, reason: {:?}", $code, $msg, err);
             tracing::error!("{} {}, reason: {}", $code, $msg, err);
-            let msg = String::from($msg);
+            let msg = ($msg).to_string();
             $crate::result::AppError::ExtAnyhow($code, msg, anyhow::anyhow!(err))
         }
     };
@@ -74,7 +74,7 @@ macro_rules! err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        let msg = String::from($msg);
+        let msg = ($msg).to_string();
         Err($crate::result::AppError::ExtCode($code, msg))
     }};
 }
@@ -99,7 +99,7 @@ macro_rules! app_err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        let msg = String::from($msg);
+        let msg = ($msg).to_string();
         $crate::result::AppError::ExtCode($code, msg)
     }};
 }
@@ -127,7 +127,7 @@ macro_rules! else_err {
     ($code:expr, $msg:expr) => {
         || {
             tracing::error!("{} {}", $code, $msg);
-            let msg = String::from($msg);
+            let msg = ($msg).to_string();
             $crate::result::AppError::ExtCode($code, msg)
         }
     };
@@ -142,7 +142,7 @@ macro_rules! or_err {
 
     ($code:expr, $msg:expr) => {{
         tracing::error!("{} {}", $code, $msg);
-        let msg = String::from($msg);
+        let msg = ($msg).to_string();
         $crate::result::AppError::ExtCode($code, msg)
     }};
 }

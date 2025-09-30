@@ -22,5 +22,5 @@ fn ret_ext_macro_err() -> AppResult<()> {
 }
 
 fn ret_macro_err() -> AppResult<()> {
-    err!(&SysErr::SystemError)
+    err!(&SysErr::SystemError, 33)
 }
