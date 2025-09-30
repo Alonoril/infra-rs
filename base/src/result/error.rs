@@ -8,10 +8,9 @@ use std::fmt::{Debug, Display, Formatter};
 #[macro_export]
 macro_rules! only_code {
     ($code:expr) => {
-        |e| {
-            tracing::debug!("ErrCode[{}] reason: {:?}", $code, e);
-            tracing::error!("ErrCode[{}] reason: {}", $code, e);
-            $crate::result::AppError::ErrCode($code)
+        |err| {
+            tracing::error!("{}, reason: {}", $code, err);
+            $crate::result::AppError::Anyhow($code, anyhow::anyhow!(err))
         }
     };
 }
@@ -23,17 +22,17 @@ macro_rules! only_code {
 macro_rules! map_err {
     ($code:expr) => {
         |err| {
-            tracing::debug!("ErrCode[{}] reason: {:?}", $code, err);
-            tracing::error!("ErrCode[{}] reason: {}", $code, err);
-            $crate::result::AppError::Anyhow($code, anyhow::anyhow!(err))
+            tracing::debug!("{}, reason: {:?}", $code, err);
+            tracing::error!("{}, reason: {}", $code, err);
+            $crate::result::AppError::Anyhow($code, "", anyhow::anyhow!(err))
         }
     };
 
-    ($code:expr, $ext:expr) => {
+    ($code:expr, $msg:expr) => {
         |err| {
-            tracing::debug!("ErrCode[{}] {}, reason: {:?}", $code, $ext, err);
-            tracing::error!("ErrCode[{}] {}, reason: {}", $code, $ext, err);
-            $crate::result::AppError::Anyhow($code, anyhow::anyhow!("{}: {}", $ext, err))
+            tracing::debug!("{} {}, reason: {:?}", $code, $msg, err);
+            tracing::error!("{} {}, reason: {}", $code, $msg, err);
+            $crate::result::AppError::Anyhow($code, $msg, anyhow::anyhow!("{}", err))
         }
     };
 
@@ -62,24 +61,23 @@ macro_rules! map_err {
 #[macro_export]
 macro_rules! err {
     ($code:expr) => {{
-        tracing::error!("ErrCode[{}]", $code);
+        tracing::error!("{}", $code);
         Err($crate::result::AppError::ErrCode($code))
     }};
 
-    ($code:expr, $err:expr) => {{
-        tracing::debug!("ErrCode[{}] error: {:?}", $code, $err);
-        tracing::error!("ErrCode[{}] error: {}", $code, $err);
+    ($code:expr, $msg:expr) => {{
+        tracing::error!("{} {}", $code, $msg);
         Err($crate::result::AppError::Anyhow(
             $code,
-            anyhow::anyhow!($err),
+            anyhow::anyhow!($msg),
         ))
     }};
 }
 
 #[macro_export]
 macro_rules! log_err {
-    ($code:expr, $log:expr) => {{
-        tracing::error!("ErrCode[{}] error msg: {}", $code, $log);
+    ($code:expr, $msg:expr) => {{
+        tracing::error!("{} {}", $code, $msg);
         $crate::err!($code)
     }};
 }
@@ -89,15 +87,21 @@ macro_rules! log_err {
 /// return AppError::*
 #[macro_export]
 macro_rules! app_err {
-    ($code:expr) => {{ $crate::result::AppError::ErrCode($code) }};
+    ($code:expr) => {{
+        tracing::error!("{}", $code);
+        $crate::result::AppError::ErrCode($code)
+    }};
 
-    ($code:expr, $msg:expr) => {{ $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg)) }};
+    ($code:expr, $msg:expr) => {{
+        tracing::error!("{} {}", $code, $msg);
+        $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
+    }};
 }
 
 #[macro_export]
 macro_rules! log_app_err {
-    ($code:expr, $log:expr) => {{
-        tracing::error!("ErrCode[{}] error msg: {}", $code, $log);
+    ($code:expr, $msg:expr) => {{
+        tracing::error!("{} {}", $code, $msg);
         $crate::app_err!($code)
     }};
 }
@@ -109,14 +113,14 @@ macro_rules! log_app_err {
 macro_rules! else_err {
     ($code:expr) => {
         || {
-            tracing::error!("ErrCode[{}]", $code);
+            tracing::error!("{}", $code);
             $crate::result::AppError::ErrCode($code)
         }
     };
 
     ($code:expr, $msg:expr) => {
         || {
-            tracing::error!("ErrCode[{}] error: {}", $code, $msg);
+            tracing::error!("{} {}", $code, $msg);
             $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
         }
     };
@@ -125,12 +129,12 @@ macro_rules! else_err {
 #[macro_export]
 macro_rules! or_err {
     ($code:expr) => {{
-        tracing::error!("ErrCode[{}]", $code);
+        tracing::error!("{}", $code);
         $crate::result::AppError::ErrCode($code)
     }};
 
     ($code:expr, $msg:expr) => {{
-        tracing::error!("ErrCode[{}] error msg: {}", $code, $msg);
+        tracing::error!("{} {}", $code, $msg);
         $crate::result::AppError::Anyhow($code, anyhow::anyhow!($msg))
     }};
 }
@@ -141,17 +145,17 @@ where
     E: std::error::Error + Into<anyhow::Error>,
 {
     // move |source| AppError::Anyhow(code, anyhow!("{}", source))
-    move |source| {
-        tracing::debug!("ErrCode[{}] reason: {:?}", code, source);
-        tracing::error!("ErrCode[{}] reason: {}", code, source);
-        AppError::Anyhow(code, anyhow!(source))
+    move |err| {
+        tracing::debug!("{}, reason: {:?}", code, err);
+        tracing::error!("{}, reason: {}", code, err);
+        AppError::Anyhow(code, "", anyhow!(err))
     }
 }
 
 #[derive(thiserror::Error)]
 pub enum AppError {
     ErrCode(&'static DynErrCode),
-    Anyhow(&'static DynErrCode, anyhow::Error),
+    Anyhow(&'static DynErrCode, &'static str, anyhow::Error),
     #[cfg(feature = "http")]
     HttpErr(&'static DynErrCode, StatusCode),
 }
@@ -164,10 +168,10 @@ impl Debug for AppError {
                 .field("code", &code.code())
                 .field("msg", &code.message())
                 .finish(),
-            AppError::Anyhow(code, e) => f
+            AppError::Anyhow(code, ext, e) => f
                 .debug_struct("AppError")
                 .field("code", &code.code())
-                .field("msg", &code.message())
+                .field("msg", &format!("{} {}", &code.message(), ext))
                 .field("error", e)
                 .finish(),
             #[cfg(feature = "http")]
@@ -184,8 +188,16 @@ impl Debug for AppError {
 impl Display for AppError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            AppError::ErrCode(code) => write!(f, "ErrCode [{code}]"),
-            AppError::Anyhow(code, e) => write!(f, "ErrCode [{code}], error: {e}"),
+            AppError::ErrCode(code) => write!(f, "ErrCode[{}] {}", code.code(), code.message()),
+            AppError::Anyhow(code, ext, e) => {
+                write!(
+                    f,
+                    "ErrCode[{}] {} {}, error: {e}",
+                    code.code(),
+                    code.message(),
+                    ext
+                )
+            }
             #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => {
                 write!(
@@ -204,7 +216,7 @@ impl AppError {
     pub fn get_reason(&self) -> String {
         match self {
             AppError::ErrCode(code) => code.to_string(),
-            AppError::Anyhow(_code, e) => format!("{e}"),
+            AppError::Anyhow(code, ext, e) => format!("{} {}, reason: {e}", code.message(), ext),
             #[cfg(feature = "http")]
             AppError::HttpErr(code, status) => format!(
                 "HttpStatus [{}] ErrCode[{}] message: {}",
@@ -223,12 +235,12 @@ impl<T: ErrorCode> From<&'static T> for AppError {
 }
 impl<T: ErrorCode> From<(&'static T, anyhow::Error)> for AppError {
     fn from(value: (&'static T, anyhow::Error)) -> Self {
-        AppError::Anyhow(value.0, value.1)
+        AppError::Anyhow(value.0, "", value.1)
     }
 }
 
 impl From<anyhow::Error> for AppError {
-    fn from(value: anyhow::Error) -> Self {
-        AppError::Anyhow(&SysErr::InternalError, value)
+    fn from(err: anyhow::Error) -> Self {
+        AppError::Anyhow(&SysErr::InternalError, "", err)
     }
 }

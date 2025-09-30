@@ -51,7 +51,7 @@ macro_rules! gen_impl_code_enum {
             impl std::fmt::Display for $enum_name {
                 fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                     use $crate::result::ErrorCode;
-                    write!(f, "{}: {}", self.code(), self.message())
+                    write!(f, "ErrCode[{}]: {}", self.code(), self.message())
                 }
             }
         )*
