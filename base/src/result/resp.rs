@@ -20,7 +20,14 @@ impl<T> RespData<T> {
 }
 
 impl RespData<()> {
-    pub fn with_code(code: &DynErrCode, ext: &str) -> Self {
+    pub fn with_code(code: &DynErrCode) -> Self {
+        Self {
+            code: code.code().into(),
+            msg: code.message().into(),
+            data: None,
+        }
+    }
+    pub fn with_ext_code(code: &DynErrCode, ext: String) -> Self {
         Self {
             code: code.code().into(),
             msg: format!("{} {}", code.message(), ext),
@@ -28,7 +35,15 @@ impl RespData<()> {
         }
     }
 
-    pub fn with_anyhow(code: &DynErrCode, ext: &str, e: anyhow::Error) -> Self {
+    pub fn with_anyhow(code: &DynErrCode, e: anyhow::Error) -> Self {
+        Self {
+            code: code.code().into(),
+            msg: format!("{}: {}", code.message(), e),
+            data: None,
+        }
+    }
+
+    pub fn with_ext_anyhow(code: &DynErrCode, ext: String, e: anyhow::Error) -> Self {
         Self {
             code: code.code().into(),
             msg: format!("{} {}: {}", code.message(), ext, e),
@@ -38,10 +53,12 @@ impl RespData<()> {
 
     pub fn with_app_error(error: AppError) -> Self {
         match error {
-            AppError::ErrCode(code, ext) => Self::with_code(code, ext),
-            AppError::Anyhow(code, ext, e) => Self::with_anyhow(code, ext, e),
+            AppError::ErrCode(code) => Self::with_code(code),
+            AppError::ExtCode(code, ext) => Self::with_ext_code(code, ext),
+            AppError::Anyhow(code, e) => Self::with_anyhow(code, e),
+            AppError::ExtAnyhow(code, ext, e) => Self::with_ext_anyhow(code, ext, e),
             #[cfg(feature = "http")]
-            AppError::HttpErr(code, status) => Self::with_code(code, &status.to_string()),
+            AppError::HttpErr(code, s) => Self::with_ext_code(code, s.to_string()),
         }
     }
 
