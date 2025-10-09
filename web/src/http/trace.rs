@@ -84,12 +84,16 @@ fn contains_sensitive_fields(body_str: &str) -> bool {
         // Signatures
         // "signature", "sign",
     ];
-    
+
     let body_lower = body_str.to_lowercase();
     sensitive_fields.iter().any(|&field| body_lower.contains(field))
 }
 
 pub async fn http_trace(req: Request, next: Next) -> Response {
+    if !req.uri().path().starts_with("/api") {
+        return next.run(req).await;
+    }
+
     let request_info = RequestInfo::new(&req);
     // Split request parts and body
     let (parts, body) = req.into_parts();
@@ -101,6 +105,7 @@ pub async fn http_trace(req: Request, next: Next) -> Response {
 
     // Rebuild request to restore body
     let req = Request::from_parts(parts, Body::from(body_bytes.clone()));
+
 
     // Log body content (may need to check content-type)
     let body_str = if should_log_body(&req, &body_bytes) {
