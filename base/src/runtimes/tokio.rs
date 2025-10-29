@@ -6,6 +6,33 @@ use tokio::task::JoinHandle;
 static APP_RT: std::sync::LazyLock<Runtime> =
     std::sync::LazyLock::new(|| build_named_runtime("app-rt", Some(num_cpus::get() * 2)));
 
+pub trait Spawnable: Future + Send + 'static {
+    fn spawn(self) -> JoinHandle<Self::Output>;
+}
+
+impl<F> Spawnable for F
+where
+    F: Future + Send + 'static,
+    F::Output: Send + 'static,
+{
+    fn spawn(self) -> JoinHandle<Self::Output> {
+        APP_RT.spawn(self)
+    }
+}
+
+pub trait SpawnTask {
+    fn spawn_task(self);
+}
+
+impl<T> SpawnTask for T
+where
+    T: Spawnable<Output = ()> + Send + 'static,
+{
+    fn spawn_task(self) {
+        self.spawn();
+    }
+}
+
 pub struct Tokio;
 
 impl Tokio {
@@ -72,6 +99,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::runtimes::Tokio;
 
     #[tokio::test]
@@ -79,5 +107,13 @@ mod tests {
         Tokio.spawn(async {
             println!("Hello, world!");
         });
+    }
+
+    #[tokio::test]
+    async fn test_spawn_task() {
+        let task = async {
+            println!("Hello, task!");
+        };
+        task.spawn_task();
     }
 }
