@@ -1,5 +1,5 @@
-use cfg_nacos::client::NacosConfigClient;
-use cfg_nacos::types::{GroupKey, NacosServer};
+use nacos_infra::client::NacosConfigClient;
+use nacos_infra::types::{GroupKey, NacosServer};
 use serde::Deserialize;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};

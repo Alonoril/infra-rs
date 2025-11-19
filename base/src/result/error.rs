@@ -37,6 +37,11 @@ macro_rules! map_err {
         }
     };
 
+    (dynerr $code:expr, $msg:expr) => {{
+        tracing::error!("(via any_err_ext) {}", $code);
+        $crate::result::any_err_ext($code, $msg)
+    }};
+
     (http $status:expr) => {
         |err| {
             tracing::debug!("Http Status[{}]: {:?}", $status, err);
@@ -94,7 +99,7 @@ macro_rules! log_err {
 macro_rules! app_err {
     ($code:expr) => {{
         tracing::error!("{}", $code);
-        $crate::result::AppError::ErrCode($code, )
+        $crate::result::AppError::ErrCode($code)
     }};
 
     ($code:expr, $msg:expr) => {{
@@ -120,7 +125,7 @@ macro_rules! else_err {
     ($code:expr) => {
         || {
             tracing::error!("{}", $code);
-            $crate::result::AppError::ErrCode($code, )
+            $crate::result::AppError::ErrCode($code)
         }
     };
 
@@ -137,7 +142,7 @@ macro_rules! else_err {
 macro_rules! or_err {
     ($code:expr) => {{
         tracing::error!("{}", $code);
-        $crate::result::AppError::ErrCode($code, )
+        $crate::result::AppError::ErrCode($code)
     }};
 
     ($code:expr, $msg:expr) => {{
@@ -156,6 +161,18 @@ where
     move |err| {
         tracing::debug!("{}, reason: {:?}", code, err);
         tracing::error!("{}, reason: {}", code, err);
+        AppError::Anyhow(code, anyhow!(err))
+    }
+}
+
+/// map_err(E any error) to AppError
+pub fn any_err_ext<E, S>(code: &'static DynErrCode, msg: S) -> impl FnOnce(E) -> AppError
+where
+    E: std::error::Error + Into<anyhow::Error>,
+    S: Into<String> + Display,
+{
+    move |err| {
+        tracing::error!("{} {}, reason: {}", code, msg, err);
         AppError::Anyhow(code, anyhow!(err))
     }
 }

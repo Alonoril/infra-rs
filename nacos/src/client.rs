@@ -3,10 +3,10 @@ use crate::service::NacosConfigService;
 use crate::types::{GroupKey, NacosServer};
 use arc_swap::ArcSwap;
 use base_infra::runtimes::Tokio;
-use nacos_sdk::api::config::{ConfigChangeListener, ConfigResponse};
+use nacos_sdk::api::config::{ConfigResponse};
 use serde::de::DeserializeOwned;
 use std::sync::{Arc, mpsc};
-use tracing::{error, info};
+use tracing::{info};
 
 pub trait GlobalConfigClient<C>
 where

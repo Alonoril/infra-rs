@@ -7,7 +7,7 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-base-infra.workspace = true
+base-infra = { workspace = true, features = ["tokio-pool"] }
 arc-swap.workspace = true
 #nacos-sdk = { version = "0.4.3", no-default-features = true, features = ['tls'] }
 # features = ['tls']

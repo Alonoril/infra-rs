@@ -2,7 +2,6 @@ use crate::types::{ConfigNotifySender, NacosServerConfig};
 use nacos_sdk::api::config::{
 	ConfigChangeListener, ConfigResponse, ConfigService, ConfigServiceBuilder,
 };
-use nacos_sdk::api::props::ClientProps;
 use std::sync::Arc;
 use tracing::{error, info};
 

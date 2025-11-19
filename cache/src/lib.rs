@@ -2,10 +2,9 @@ pub mod error;
 pub mod lock;
 pub mod memory;
 pub mod schema;
-mod schema_codec;
+pub mod schema_codec;
 
 use crate::memory::NeverMemCache;
-pub use schema_codec::*;
 use std::fmt;
 use std::hash::Hash;
 use tracing::info;
