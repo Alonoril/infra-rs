@@ -15,6 +15,7 @@ members = [
     "web",
     "cli",
     "cache",
+    "nacos",
     "examples/demo",
 ]
 
@@ -24,6 +25,7 @@ cache-infra = { path = "cache" }
 web-infra = { path = "web" }
 sql-infra = { path = "sql" }
 cli-infra = { path = "cli" }
+nacos-infra = { path = "nacos" }
 
 clap = { version = "4.5", features = ["derive", "env"] }
 figment = { version = "0.10" }
@@ -63,7 +65,11 @@ moka = { version = "0.12", features = ["future"] }
 uuid = { version = "1.3.1", features = ["v4"] }
 bincode = "2.0.1"
 
-alloy-primitives = { version = "1.2", features = ["serde"] }
+alloy-primitives = { version = "=1.4.1", features = ["serde"] }
 
 # additional dependencies for service module
 reqwest = "0.12"
+
+# nacos
+arc-swap = "1.7"
+nacos-sdk = { version = "0.5" }
