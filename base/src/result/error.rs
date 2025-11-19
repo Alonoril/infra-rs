@@ -37,7 +37,7 @@ macro_rules! map_err {
         }
     };
 
-    (dynerr $code:expr, $msg:expr) => {{
+    ($code:expr, v2 $msg:expr) => {{
         tracing::error!("(via any_err_ext) {}", $code);
         $crate::result::any_err_ext($code, $msg)
     }};
