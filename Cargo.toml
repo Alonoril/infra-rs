@@ -16,6 +16,7 @@ members = [
     "cli",
     "cache",
     "nacos",
+    "client",
     "examples/demo",
 ]
 
