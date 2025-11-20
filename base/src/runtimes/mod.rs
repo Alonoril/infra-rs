@@ -12,4 +12,5 @@ pub use task_util::*;
 #[cfg(feature = "tokio-pool")]
 pub use tokio::*;
 
+#[cfg(any(feature = "tokio-pool", feature = "rayon-pool"))]
 const MAX_THREAD_NAME_LENGTH: usize = 12;

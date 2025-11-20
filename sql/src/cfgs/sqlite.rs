@@ -83,4 +83,8 @@ impl DbCfgTrait for DbConfig {
     fn max_lifetime_secs(&self) -> u64 {
         self.max_lifetime_secs
     }
+
+    fn run_migrations(&self) -> bool {
+        self.run_migrations
+    }
 }

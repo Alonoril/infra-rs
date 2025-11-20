@@ -9,6 +9,7 @@ repository.workspace = true
 [dependencies]
 base-infra = { workspace = true, features = ["tokio-pool"] }
 cli-infra = { workspace = true }
+sql-infra = { workspace = true, features = ["sqlite"] }
 
 clap = { workspace = true }
 tokio = { workspace = true, features = ["signal", "rt", "rt-multi-thread", "macros"] }
@@ -17,3 +18,7 @@ anyhow = { workspace = true }
 tracing = { workspace = true }
 axum = { workspace = true }
 serde = { workspace = true }
+
+# sql
+sea-orm = { workspace = true, features = ["sqlx-sqlite", "with-bigdecimal", "with-chrono", "debug-print", "sqlite-use-returning-for-3_35"] }
+sqlx.workspace = true
