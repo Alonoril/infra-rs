@@ -1,0 +1,17 @@
+[package]
+name = "axum-resp-demo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+axum-resp-macro.workspace = true
+base-infra.workspace = true
+serde.workspace = true
+tokio.workspace = true
+web-infra.workspace = true
+tracing.workspace = true

@@ -13,20 +13,25 @@ members = [
     "cache",
     "sql",
     "web",
+    "web/axum-resp-macro",
     "cli",
     "cache",
     "nacos",
     "client",
-    "examples/demo",
+    "examples/test-config",
+    "examples/sea-orm-sqlx-demo",
+    "examples/axum-resp-demo",
 ]
 
 [workspace.dependencies]
 base-infra = { path = "base" }
 cache-infra = { path = "cache" }
 web-infra = { path = "web" }
+axum-resp-macro = { path = "web/axum-resp-macro" }
 sql-infra = { path = "sql" }
 cli-infra = { path = "cli" }
 nacos-infra = { path = "nacos" }
+test-config = { path = "examples/test-config" }
 
 clap = { version = "4.5", features = ["derive", "env"] }
 figment = { version = "0.10" }
