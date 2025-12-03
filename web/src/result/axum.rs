@@ -4,7 +4,7 @@ use axum::extract::Query as AxumQuery;
 use axum::extract::rejection::{JsonRejection, QueryRejection};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use base_infra::result::{AppError, RespData};
+use base_infra::result::{AppError, ErrorCode, RespData};
 
 #[derive(Debug, thiserror::Error)]
 pub enum AxumError {
@@ -42,8 +42,9 @@ impl IntoResponse for AxumError {
                 (StatusCode::OK, AppJson(resp)).into_response()
             }
             AxumError::AxumParams(err) => {
-                tracing::error!("ErrorCode[{}] reason: {:?}", WebErr::QueryParamsErr, err);
-                let resp = RespData::with_anyhow(&WebErr::QueryParamsErr, err.into());
+                let ecode = WebErr::QueryParamsErr;
+                tracing::error!("ErrorCode[{}] reason: {:?}", ecode.code(), err);
+                let resp = RespData::with_anyhow(&ecode, err.into());
                 (StatusCode::OK, AppJson(resp)).into_response()
             }
             AxumError::AppError(err) => match err {
