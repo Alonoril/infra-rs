@@ -1,3 +1,4 @@
+use axum::extract::Query;
 use crate::result::WebErr;
 use axum::Json;
 use axum::extract::rejection::{JsonRejection, QueryRejection};
@@ -25,6 +26,19 @@ where
 {
     fn into_response(self) -> Response {
         Json(self.0).into_response()
+    }
+}
+
+#[derive(axum_macros::FromRequest)]
+#[from_request(via(axum::extract::Query), rejection(AxumError))]
+pub struct AxumQuery<T>(pub T);
+
+impl<T> IntoResponse for AxumQuery<T>
+where
+    Query<T>: IntoResponse,
+{
+    fn into_response(self) -> Response {
+        Query(self.0).into_response()
     }
 }
 
