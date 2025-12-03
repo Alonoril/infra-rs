@@ -36,9 +36,14 @@ impl RespData<()> {
     }
 
     pub fn with_anyhow(code: &DynErrCode, e: anyhow::Error) -> Self {
+        let msg = if code.message().is_empty() {
+            format!("{e}")
+        } else {
+            format!("{}: {}", code.message(), e)
+        };
         Self {
             code: code.code().into(),
-            msg: format!("{}: {}", code.message(), e),
+            msg,
             data: None,
         }
     }

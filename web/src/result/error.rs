@@ -10,6 +10,6 @@ gen_impl_code_enum! {
         InternalServerError = ("WEB005", "unhandled internal error"),
 
         ReqJsonErr = ("AXUM01", "Error in the json payload"),
-        QueryParamsErr = ("AXUM02", "Error in the query params"),
+        QueryParamsErr = ("AXUM02", ""),
     }
 }
