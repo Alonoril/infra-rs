@@ -29,7 +29,7 @@ where
     }
 }
 
-#[derive(axum_macros::FromRequest)]
+#[derive(axum_macros::FromRequestParts)]
 #[from_request(via(axum::extract::Query), rejection(AxumError))]
 pub struct AxumQuery<T>(pub T);
 
