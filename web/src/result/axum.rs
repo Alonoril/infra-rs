@@ -1,6 +1,6 @@
 use crate::result::WebErr;
 use axum::Json;
-use axum::extract::rejection::JsonRejection;
+use axum::extract::rejection::{JsonRejection, QueryRejection};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use base_infra::result::{AppError, RespData};
@@ -9,6 +9,8 @@ use base_infra::result::{AppError, RespData};
 pub enum AxumError {
     #[error("Request JSON error : {0}")]
     AxumJson(#[from] JsonRejection),
+    #[error("Invalid query parameter: {0}")]
+    AxumParams(#[from] QueryRejection),
     #[error("{0}")]
     AppError(#[from] AppError),
 }
@@ -32,6 +34,11 @@ impl IntoResponse for AxumError {
             AxumError::AxumJson(err) => {
                 tracing::error!("ErrorCode[{}] reason: {:?}", WebErr::ReqJsonErr, err);
                 let resp = RespData::with_anyhow(&WebErr::ReqJsonErr, err.into());
+                (StatusCode::OK, AppJson(resp)).into_response()
+            }
+            AxumError::AxumParams(err) => {
+                tracing::error!("ErrorCode[{}] reason: {:?}", WebErr::QueryParamsErr, err);
+                let resp = RespData::with_anyhow(&WebErr::QueryParamsErr, err.into());
                 (StatusCode::OK, AppJson(resp)).into_response()
             }
             AxumError::AppError(err) => match err {
