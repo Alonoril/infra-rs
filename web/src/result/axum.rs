@@ -1,6 +1,6 @@
-use axum::extract::Query;
 use crate::result::WebErr;
 use axum::Json;
+use axum::extract::Query as AxumQuery;
 use axum::extract::rejection::{JsonRejection, QueryRejection};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -31,16 +31,7 @@ where
 
 #[derive(axum_macros::FromRequestParts)]
 #[from_request(via(axum::extract::Query), rejection(AxumError))]
-pub struct AxumQuery<T>(pub T);
-
-impl<T> IntoResponse for AxumQuery<T>
-where
-    Query<T>: IntoResponse,
-{
-    fn into_response(self) -> Response {
-        Query(self.0).into_response()
-    }
-}
+pub struct Query<T>(pub T);
 
 impl IntoResponse for AxumError {
     fn into_response(self) -> Response {
