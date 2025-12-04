@@ -1,6 +1,5 @@
 use crate::result::WebErr;
 use axum::Json;
-use axum::extract::Query as AxumQuery;
 use axum::extract::rejection::{JsonRejection, QueryRejection};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};

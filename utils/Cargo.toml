@@ -1,5 +1,5 @@
 [package]
-name = "http-client"
+name = "base-util"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -12,3 +12,5 @@ base-infra = { workspace = true, features = ["tokio-pool", "bincode"] }
 anyhow.workspace = true
 tracing.workspace = true
 reqwest = { workspace = true, features = ["json"] }
+chrono = { workspace = true, features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
