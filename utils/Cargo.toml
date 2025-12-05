@@ -14,3 +14,4 @@ tracing.workspace = true
 reqwest = { workspace = true, features = ["json"] }
 chrono = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
+bigdecimal.workspace = true
