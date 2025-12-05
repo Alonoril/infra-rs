@@ -1,6 +1,6 @@
 pub mod chrono;
 pub mod http;
-mod bignum;
-mod error;
+pub mod bignum;
+pub mod error;
 
 pub use reqwest::Client;
