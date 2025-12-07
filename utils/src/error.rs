@@ -7,6 +7,7 @@ base_infra::gen_impl_code_enum! {
 		StrToNaiveDt = ("CHR001", "Failed to parse NaiveDateTime from string "),
 		TimestampToDate = ("CHR002", "Failed to parse DateTime from timestamp"),
         LocalDtNotExistDstGap = ("CHR003", "local time does not exist (DST gap)"),
+        TruncateDateTime = ("CHR004", "Valid DateTime when truncating to "),
 
     }
 }

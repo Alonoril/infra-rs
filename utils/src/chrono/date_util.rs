@@ -1,7 +1,8 @@
 use crate::error::UtlErr;
 use base_infra::result::AppResult;
 use base_infra::{else_err, err, map_err};
-use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Utc};
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Timelike, Utc};
+use std::fmt::{Display, Formatter};
 
 pub trait DiffDays<Rhs = Self> {
     fn diff_days(self, to: Rhs) -> i64;
@@ -81,6 +82,50 @@ impl LocalDateTimeExt for &str {
             chrono::LocalResult::None => err!(&UtlErr::LocalDtNotExistDstGap)?,
         };
         Ok(dt_local)
+    }
+}
+
+/// Truncate DateTime to unit (zeroed in hours/minutes/seconds/nanoseconds)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TruncUnit {
+    Hour,
+    Minute,
+    Second,
+    // Nanosecond,
+}
+
+impl Display for TruncUnit {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TruncUnit::Hour => write!(f, "hour"),
+            TruncUnit::Minute => write!(f, "minute"),
+            TruncUnit::Second => write!(f, "second"),
+            // TruncUnit::Nanosecond => write!(f, "truncate to nanosecond"),
+        }
+    }
+}
+
+pub trait DateTimeTruncate<T> {
+    /// Truncate DateTime to unit (zeroed in hours/minutes/seconds/nanoseconds)
+    fn truncate(&self, unit: TruncUnit) -> AppResult<T>;
+}
+
+impl DateTimeTruncate<DateTime<Utc>> for DateTime<Utc> {
+    fn truncate(&self, unit: TruncUnit) -> AppResult<DateTime<Utc>> {
+        match unit {
+            TruncUnit::Hour => self
+                .with_minute(0)
+                .and_then(|x| x.with_second(0))
+                .and_then(|x| x.with_nanosecond(0))
+                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
+            TruncUnit::Minute => self
+                .with_second(0)
+                .and_then(|x| x.with_nanosecond(0))
+                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
+            TruncUnit::Second => self
+                .with_nanosecond(0)
+                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
+        }
     }
 }
 
