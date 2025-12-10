@@ -70,27 +70,50 @@ fn should_log_body(req: &Request, body_bytes: &Bytes) -> bool {
 fn contains_sensitive_fields(body_str: &str) -> bool {
     let sensitive_fields = [
         // Private keys
-        "privatekey", "private_key", "pri_key", "prikey", "priv_key",
-        "sk", "secretkey", "secret_key",
+        "privatekey",
+        "private_key",
+        "pri_key",
+        "prikey",
+        "priv_key",
+        "sk",
+        "secretkey",
+        "secret_key",
         // Passwords
-        "password", "pwd", "pass", "passwd", "passwork",
+        "password",
+        "pwd",
+        "pass",
+        "passwd",
+        "passwork",
         // Tokens
         // "token", "accesstoken", "access_token", "authtoken", "auth_token",
         // "apikey", "api_key",
         // Other sensitive info
-        "secret", "mnemonic", "seed",
-        "wallet_key", "walletkey", "auth_key", "authkey",
-        "credential", "credentials",
+        "secret",
+        "mnemonic",
+        "seed",
+        "wallet_key",
+        "walletkey",
+        "auth_key",
+        "authkey",
+        "credential",
+        "credentials",
         // Signatures
         // "signature", "sign",
     ];
 
     let body_lower = body_str.to_lowercase();
-    sensitive_fields.iter().any(|&field| body_lower.contains(field))
+    sensitive_fields
+        .iter()
+        .any(|&field| body_lower.contains(field))
 }
 
+// if !req.uri().path().starts_with("/api") {
+//     return next.run(req).await;
+// }
 pub async fn http_trace(req: Request, next: Next) -> Response {
-    if !req.uri().path().starts_with("/api") {
+    let filter = ["/api/", "/v1/", "/v2/", "/v3/"];
+    let ok = filter.into_iter().any(|p| req.uri().path().starts_with(p));
+    if !ok {
         return next.run(req).await;
     }
 
@@ -105,7 +128,6 @@ pub async fn http_trace(req: Request, next: Next) -> Response {
 
     // Rebuild request to restore body
     let req = Request::from_parts(parts, Body::from(body_bytes.clone()));
-
 
     // Log body content (may need to check content-type)
     let body_str = if should_log_body(&req, &body_bytes) {
