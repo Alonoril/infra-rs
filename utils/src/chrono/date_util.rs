@@ -105,29 +105,31 @@ impl Display for TruncUnit {
     }
 }
 
-pub trait DateTimeTruncate<T> {
-    /// Truncate DateTime to unit (zeroed in hours/minutes/seconds/nanoseconds)
-    fn truncate(&self, unit: TruncUnit) -> AppResult<T>;
+pub fn truncate_timelike<T>(value: &T, unit: TruncUnit) -> AppResult<T>
+where
+    T: Timelike + Sized,
+{
+    let truncated = match unit {
+        TruncUnit::Hour => value
+            .with_minute(0)
+            .and_then(|x| x.with_second(0))
+            .and_then(|x| x.with_nanosecond(0)),
+        TruncUnit::Minute => value.with_second(0).and_then(|x| x.with_nanosecond(0)),
+        TruncUnit::Second => value.with_nanosecond(0),
+    };
+
+    truncated.ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit))
 }
 
-impl DateTimeTruncate<DateTime<Utc>> for DateTime<Utc> {
-    fn truncate(&self, unit: TruncUnit) -> AppResult<DateTime<Utc>> {
-        match unit {
-            TruncUnit::Hour => self
-                .with_minute(0)
-                .and_then(|x| x.with_second(0))
-                .and_then(|x| x.with_nanosecond(0))
-                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
-            TruncUnit::Minute => self
-                .with_second(0)
-                .and_then(|x| x.with_nanosecond(0))
-                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
-            TruncUnit::Second => self
-                .with_nanosecond(0)
-                .ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit)),
-        }
+pub trait TimelikeTruncate: Timelike + Sized {
+    /// Truncate DateTime to unit (zeroed in hours/minutes/seconds/nanoseconds)
+    fn truncate(&self, unit: TruncUnit) -> AppResult<Self> {
+        truncate_timelike(self, unit)
     }
 }
+
+impl TimelikeTruncate for DateTime<Utc> {}
+impl TimelikeTruncate for NaiveDateTime {}
 
 #[cfg(test)]
 mod tests {
