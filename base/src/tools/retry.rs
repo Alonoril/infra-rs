@@ -7,7 +7,7 @@ use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 use tracing::{debug, error, warn};
 
-const MAX_RETRY: usize = 10;
+const MAX_RETRY: usize = 6;
 
 struct Delay {
     end_time: Instant,
