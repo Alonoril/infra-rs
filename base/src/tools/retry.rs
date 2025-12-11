@@ -7,7 +7,7 @@ use std::task::{Context, Poll};
 use std::time::{Duration, Instant};
 use tracing::{debug, error, warn};
 
-const MAX_RETRY: usize = 6;
+const MAX_RETRY: usize = 10;
 
 struct Delay {
     end_time: Instant,
@@ -68,7 +68,7 @@ where
         } else {
             1 << attempt_times
         };
-        delay * 100
+        delay * 500
     }
 }
 
