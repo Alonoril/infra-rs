@@ -2,7 +2,6 @@ use crate::schemadb::{
 	ColumnFamilyName, RksDB, SchemaBatch,
 	schema::{KeyCodec, Schema},
 };
-use base_infra::codec::bincode::{BinDecodeExt, BinEncodeExt};
 use base_infra::result::AppResult;
 use bincode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
@@ -53,11 +52,16 @@ crate::define_pub_schema!(
 	TtlExpirationSchema,
 	TtlExpirationKey,
 	TtlExpirationValue,
-	"ttl_expiration"
+	"ttl_expiration_index"
 );
 
 // Define schema for single key expiration time index
-crate::define_pub_schema!(TtlSingleSchema, TtlSingleKey, TtlSingleValue, "ttl_single");
+crate::define_pub_schema!(
+	TtlSingleSchema,
+	TtlSingleKey,
+	TtlSingleValue,
+	"ttl_single_index"
+);
 
 // Implement encoding for expiration index schema
 crate::impl_schema_bin_codec!(TtlExpirationSchema, TtlExpirationKey, TtlExpirationValue);
@@ -356,7 +360,7 @@ pub fn timestamp_after_days(days: u64) -> u64 {
 mod tests {
 	use super::*;
 	use crate::schemadb::schema::Schema;
-	use base_infra::codec::bincode::{BinDecodeExt, BinEncodeExt};
+	use base_infra::codec::bincode::BinEncodeExt;
 	use serde::{Deserialize, Serialize};
 
 	#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Encode, Decode)]
@@ -406,11 +410,12 @@ mod tests {
 		let db = create_test_db();
 		let key = TestKey(1, 2);
 		let value = TestValue(1, "hello".to_string(), true);
-		let past_time = current_timestamp() - 10; // 10 seconds ago
+		let past_time = timestamp_after_seconds(1); // 1 seconds ago
 
 		// Write already-expired data
 		db.put_with_ttl::<TestSchema>(&key, &value, past_time)
 			.unwrap();
+		std::thread::sleep(std::time::Duration::from_secs(1));
 
 		// Read should return None (expired)
 		let result = db.get_check_ttl::<TestSchema>(&key).unwrap();

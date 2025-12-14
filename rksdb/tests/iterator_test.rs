@@ -2,15 +2,13 @@
 // Parts of the project are originally copyright © Meta Platforms, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::Result;
 use base_infra::result::AppResult;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use rksdb_infra::define_schema;
-use rksdb_infra::errors::RksDbError;
 use rksdb_infra::schemadb::iterator::SchemaIterator;
 use rksdb_infra::schemadb::schema::{KeyCodec, Schema, SeekKeyCodec, ValueCodec};
 use rksdb_infra::schemadb::{IntoDbResult, RksDB};
-use rocksdb::{ColumnFamilyDescriptor, DEFAULT_COLUMN_FAMILY_NAME, SliceTransform};
+use rocksdb::{ColumnFamilyDescriptor, SliceTransform, DEFAULT_COLUMN_FAMILY_NAME};
 
 define_schema!(TestSchema, TestKey, TestValue, "TestCF");
 

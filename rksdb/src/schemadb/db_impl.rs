@@ -236,7 +236,7 @@ impl RksDB {
 		&self,
 		opts: ReadOptions,
 		direction: ScanDirection,
-	) -> AppResult<SchemaIterator<S>> {
+	) -> AppResult<SchemaIterator<'_, S>> {
 		let cf_handle = self.get_cf_handle(S::COLUMN_FAMILY_NAME)?;
 		Ok(SchemaIterator::new(
 			self.inner.raw_iterator_cf_opt(cf_handle, opts),
@@ -245,22 +245,25 @@ impl RksDB {
 	}
 
 	/// Returns a forward [`SchemaIterator`] on a certain schemadb.
-	pub fn iter<S: Schema>(&self) -> AppResult<SchemaIterator<S>> {
+	pub fn iter<S: Schema>(&self) -> AppResult<SchemaIterator<'_, S>> {
 		self.iter_with_opts(ReadOptions::default())
 	}
 
 	/// Returns a forward [`SchemaIterator`] on a certain schemadb, with non-default ReadOptions
-	pub fn iter_with_opts<S: Schema>(&self, opts: ReadOptions) -> AppResult<SchemaIterator<S>> {
+	pub fn iter_with_opts<S: Schema>(&self, opts: ReadOptions) -> AppResult<SchemaIterator<'_, S>> {
 		self.iter_with_direction::<S>(opts, ScanDirection::Forward)
 	}
 
 	/// Returns a backward [`SchemaIterator`] on a certain schemadb.
-	pub fn rev_iter<S: Schema>(&self) -> AppResult<SchemaIterator<S>> {
+	pub fn rev_iter<S: Schema>(&self) -> AppResult<SchemaIterator<'_, S>> {
 		self.rev_iter_with_opts(ReadOptions::default())
 	}
 
 	/// Returns a backward [`SchemaIterator`] on a certain schemadb, with non-default ReadOptions
-	pub fn rev_iter_with_opts<S: Schema>(&self, opts: ReadOptions) -> AppResult<SchemaIterator<S>> {
+	pub fn rev_iter_with_opts<S: Schema>(
+		&self,
+		opts: ReadOptions,
+	) -> AppResult<SchemaIterator<'_, S>> {
 		self.iter_with_direction::<S>(opts, ScanDirection::Backward)
 	}
 

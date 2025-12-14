@@ -19,6 +19,11 @@ rocksdb = { workspace = true }
 dunce = { workspace = true }
 tokio = { workspace = true }
 
+
+[features]
+fuzzing = []
+
+
 [dev-dependencies]
 byteorder = "1.5.0"
 aptos-temppath = { git = "https://github.com/aptos-labs/aptos-core", branch = "mainnet" }

@@ -121,13 +121,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		};
 		let value = UserSessionValue {
 			access_token: format!("expired_token_{}", i),
-			last_activity: current_timestamp() - 10, // expired 10 seconds ago
+			last_activity: timestamp_after_seconds(1), // expired at 1 seconds ago
 			device_info: "Test Device".to_string(),
 		};
-		let past_time = current_timestamp() - 5; // expired 5 seconds ago
+		let past_time = timestamp_after_seconds(2); // expired at 2 seconds ago
 		db.put_with_ttl::<UserSessionSchema>(&key, &value, past_time)?;
 	}
+	tokio::time::sleep(Duration::from_secs(3)).await;
 	println!("8. Wrote 5 expired session entries");
+
+	let key = UserSessionKey {
+		user_id: 1000,
+		session_id: "expired_sess_0".to_string(),
+	};
+	let result = db.get_check_ttl::<UserSessionSchema>(&key)?;
+	match result {
+		Some(value) => println!("8-1. Expired entry read success: {:?}", value),
+		None => println!("8-1. Expired entry read failed (expired)"),
+	}
+
 
 	// Configure and start TTL cleanup scheduler
 	let config = TtlScheduleConfig {
@@ -141,7 +153,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("9. TTL scheduler started, cleaning every 2 seconds");
 
 	// Wait for cleanup to complete
-	tokio::time::sleep(Duration::from_secs(3)).await;
+	tokio::time::sleep(Duration::from_secs(1)).await;
 
 	// Trigger an immediate cleanup
 	let cleanup_time = scheduler.trigger_cleanup()?;

@@ -4,7 +4,6 @@ pub mod rksdb_config;
 mod rocksdb_opts;
 pub mod schemadb;
 
-use anyhow::ensure;
 pub use rocksdb_opts::*;
 use std::path::PathBuf;
 
@@ -20,26 +19,6 @@ use rocksdb::{BlockBasedOptions, Cache, ColumnFamilyDescriptor, DBCompressionTyp
 
 pub use rocksdb::DEFAULT_COLUMN_FAMILY_NAME;
 pub type DbResult<T, E = RksDbError> = Result<T, E>;
-
-fn ensure_slice_len_eq(data: &[u8], len: usize) -> anyhow::Result<()> {
-	ensure!(
-		data.len() == len,
-		"Unexpected data len {}, expected {}.",
-		data.len(),
-		len,
-	);
-	Ok(())
-}
-
-fn ensure_slice_len_gt(data: &[u8], len: usize) -> anyhow::Result<()> {
-	ensure!(
-		data.len() > len,
-		"Unexpected data len {}, expected to be greater than {}.",
-		data.len(),
-		len,
-	);
-	Ok(())
-}
 
 pub trait OpenRocksDB {
 	fn new(
