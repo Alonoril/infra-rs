@@ -3,11 +3,11 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct TestAppConfig {
-    #[serde(rename = "log")]
-    logger: Logger,
+	#[serde(rename = "log")]
+	logger: Logger,
 }
 impl TestAppConfig {
-    pub fn logger(&self) -> &Logger {
-        &self.logger
-    }
+	pub fn logger(&self) -> &Logger {
+		&self.logger
+	}
 }

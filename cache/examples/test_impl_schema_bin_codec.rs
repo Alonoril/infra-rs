@@ -22,7 +22,6 @@ define_pub_schema!(SecondsCacheSchema, McKeySec, McValueSec, SecondsMemCache);
 
 impl_schema_bin_codec!(SecondsCacheSchema, McKeySec, McValueSec);
 
-
 #[tokio::main]
 async fn main() {
 	let key = McKeySec(1, 2);

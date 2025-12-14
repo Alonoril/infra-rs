@@ -1,7 +1,7 @@
-mod simple_map;
-pub mod task;
 #[cfg(feature = "alloy-primitives")]
 pub mod primitives;
+mod simple_map;
+pub mod task;
 
 #[cfg(feature = "bincode")]
 #[cfg(feature = "alloy-primitives")]

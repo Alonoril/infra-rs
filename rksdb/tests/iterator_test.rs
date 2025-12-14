@@ -9,7 +9,7 @@ use rksdb_infra::define_schema;
 use rksdb_infra::errors::RksDbError;
 use rksdb_infra::schemadb::iterator::SchemaIterator;
 use rksdb_infra::schemadb::schema::{KeyCodec, Schema, SeekKeyCodec, ValueCodec};
-use rksdb_infra::schemadb::{RksDB, IntoDbResult};
+use rksdb_infra::schemadb::{IntoDbResult, RksDB};
 use rocksdb::{ColumnFamilyDescriptor, DEFAULT_COLUMN_FAMILY_NAME, SliceTransform};
 
 define_schema!(TestSchema, TestKey, TestValue, "TestCF");

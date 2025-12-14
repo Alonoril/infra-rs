@@ -3,24 +3,24 @@ use base_infra::{err, map_err};
 use std::io::{Error, ErrorKind};
 
 fn main() -> AppResult<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .init();
+	tracing_subscriber::fmt()
+		.with_max_level(tracing::Level::INFO)
+		.init();
 
-    // return_io_err().map_err(map_err!(&SysErr::InternalError))?;
-    return_io_err().map_err(map_err!(&SysErr::InternalError, "sdt::io error"))?;
-    Ok(())
+	// return_io_err().map_err(map_err!(&SysErr::InternalError))?;
+	return_io_err().map_err(map_err!(&SysErr::InternalError, "sdt::io error"))?;
+	Ok(())
 }
 
 fn return_io_err() -> Result<(), std::io::Error> {
-    // Err(Error::new(ErrorKind::Other, "Some error"))
-    Err(Error::from(ErrorKind::UnexpectedEof))
+	// Err(Error::new(ErrorKind::Other, "Some error"))
+	Err(Error::from(ErrorKind::UnexpectedEof))
 }
 
 fn ret_ext_macro_err() -> AppResult<()> {
-    err!(&SysErr::SystemError, "some error")
+	err!(&SysErr::SystemError, "some error")
 }
 
 fn ret_macro_err() -> AppResult<()> {
-    err!(&SysErr::SystemError, 33)
+	err!(&SysErr::SystemError, 33)
 }

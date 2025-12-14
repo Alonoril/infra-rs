@@ -3,8 +3,8 @@ use std::fmt::{Debug, Display};
 pub type DynErrCode = dyn ErrorCode + Send + Sync + 'static;
 
 pub trait ErrorCode: Debug + Display + Sync + Send + 'static {
-    fn code(&self) -> &'static str;
-    fn message(&self) -> &'static str;
+	fn code(&self) -> &'static str;
+	fn message(&self) -> &'static str;
 }
 
 #[macro_export]
@@ -75,38 +75,38 @@ macro_rules! gen_impl_code_enum {
 //     ("DB0001", DATABASE_ERROR, "Database error");
 // }
 gen_impl_code_enum! {
-    SysErr {
-        Success = ("000000", "Success"),
-        SystemError = ("000001", "System error"),
-        InternalError = ("000002", "Internal error"),
-        InvalidParams = ("000003", "Invalid parameters"),
+	SysErr {
+		Success = ("000000", "Success"),
+		SystemError = ("000001", "System error"),
+		InternalError = ("000002", "Internal error"),
+		InvalidParams = ("000003", "Invalid parameters"),
 
-        SerdeError = ("JSN000", "Serde error"),
-        ReqJsonErr = ("JSN001", "Error in the json payload"),
-        DeserializeErr = ("JSN002", "Deserialize with Serde error"),
+		SerdeError = ("JSN000", "Serde error"),
+		ReqJsonErr = ("JSN001", "Error in the json payload"),
+		DeserializeErr = ("JSN002", "Deserialize with Serde error"),
 
-        ConfigError = ("CFG000", "Config error"),
-        NoCfgFile = ("CFG001", "Config path not specified"),
-        ConfigLoadFailed = ("CFG002", "Config load failed"),
+		ConfigError = ("CFG000", "Config error"),
+		NoCfgFile = ("CFG001", "Config path not specified"),
+		ConfigLoadFailed = ("CFG002", "Config load failed"),
 
-        MutexLockErr = ("MUTEX1", "Cannot currently handle a poisoned lock"),
+		MutexLockErr = ("MUTEX1", "Cannot currently handle a poisoned lock"),
 
-        ServerBindErr = ("SVR001", "Server bind failed"),
-        ServerStartErr = ("SVR002", "Server start failed"),
+		ServerBindErr = ("SVR001", "Server bind failed"),
+		ServerStartErr = ("SVR002", "Server start failed"),
 
-        SystemTimeError = ("TIME001", "System time error"),
-    }
+		SystemTimeError = ("TIME001", "System time error"),
+	}
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::result::{ErrorCode, SysErr};
+	use crate::result::{ErrorCode, SysErr};
 
-    #[test]
-    fn test() {
-        let error = SysErr::SystemError;
-        println!("Error Code: {}", error.code());
-        println!("Error Message: {}", error.message());
-        println!("Error: {}", error); // Print via Display trait
-    }
+	#[test]
+	fn test() {
+		let error = SysErr::SystemError;
+		println!("Error Code: {}", error.code());
+		println!("Error Message: {}", error.message());
+		println!("Error: {}", error); // Print via Display trait
+	}
 }
