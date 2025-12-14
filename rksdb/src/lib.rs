@@ -1,20 +1,19 @@
+mod cfg;
 pub mod codec;
 pub mod errors;
-pub mod rksdb_config;
-mod rocksdb_opts;
 pub mod schemadb;
-
-pub use rocksdb_opts::*;
-use std::path::PathBuf;
 
 use crate::{
 	errors::RksDbError,
 	schemadb::{ColumnFamilyName, RksDB},
 };
+pub use cfg::*;
+use std::path::PathBuf;
+use std::time::Instant;
 use tracing::info;
 
-use crate::rksdb_config::{RocksdbConfig, StorageDirPaths};
 use base_infra::result::AppResult;
+use cfg::rksdb_config::{RocksdbConfig, StorageDirPaths};
 use rocksdb::{BlockBasedOptions, Cache, ColumnFamilyDescriptor, DBCompressionType, Options};
 
 pub use rocksdb::DEFAULT_COLUMN_FAMILY_NAME;
@@ -57,6 +56,7 @@ pub trait OpenRocksDB {
 		readonly: bool,
 		with_ttl: bool,
 	) -> AppResult<RksDB> {
+		let started_at = Instant::now();
 		let db = if readonly {
 			RksDB::open_cf_readonly(
 				&gen_rocksdb_options(db_config, true),
@@ -73,7 +73,8 @@ pub trait OpenRocksDB {
 			)?
 		};
 
-		info!("Opened {name} at {path:?}!");
+		let elapsed = started_at.elapsed();
+		info!("Database opened {name} in {elapsed:.3?} at {path:?}!");
 		Ok(db)
 	}
 
@@ -95,6 +96,19 @@ pub trait OpenRocksDB {
 		Self::gen_cfds(rocksdb_config, cfs, cf_opts_post_processor)
 	}
 
+	//     // bottommost 字典大小（max_dict_bytes）：比如 16KB / 32KB 常见
+	//     // 参数含义与 set_compression_options 相同；对 zstd 来说你主要关心 max_dict_bytes。
+	//     cf_opts.set_bottommost_compression_options(
+	//         0,   // w_bits（更多是 zlib 场景）
+	//         0,   // level（更多是 zlib 场景）
+	//         0,   // strategy（更多是 zlib 场景）
+	//         32 * 1024, // max_dict_bytes：字典最大大小（示例 32KiB）
+	//         true,      // enabled：必须 true 才会启用 bottommost 配置
+	//     );
+	//
+	//     // zstd 训练数据上限（train_bytes）：建议从 0 或几十/几百 KB 起步逐渐调
+	//     // ⚠️ train_bytes 越大，压缩率可能更好，但训练/内存开销越高
+	//     cf_opts.set_bottommost_zstd_max_train_bytes(256 * 1024, true);
 	fn gen_cfds<F>(
 		rocksdb_config: &RocksdbConfig,
 		cfs: Vec<ColumnFamilyName>,
@@ -103,16 +117,28 @@ pub trait OpenRocksDB {
 	where
 		F: Fn(ColumnFamilyName, &mut Options),
 	{
-		let mut table_options = BlockBasedOptions::default();
-		table_options.set_cache_index_and_filter_blocks(rocksdb_config.cache_index_and_filter_blocks);
-		table_options.set_block_size(rocksdb_config.block_size as usize);
+		let mut table_opts = BlockBasedOptions::default();
+		table_opts.set_cache_index_and_filter_blocks(rocksdb_config.cache_index_and_filter_blocks);
+		table_opts.set_pin_l0_filter_and_index_blocks_in_cache(true);
+		table_opts.set_block_size(rocksdb_config.block_size as usize);
 		let cache = Cache::new_lru_cache(rocksdb_config.block_cache_size as usize);
-		table_options.set_block_cache(&cache);
+		table_opts.set_block_cache(&cache);
+		table_opts.set_hybrid_ribbon_filter(10.0, 1);
+		table_opts.set_format_version(5);
+
 		let mut cfds = Vec::with_capacity(cfs.len());
 		for cf_name in cfs {
 			let mut cf_opts = Options::default();
+			// L1~Ln With LZ4 (Fast)
 			cf_opts.set_compression_type(DBCompressionType::Lz4);
-			cf_opts.set_block_based_table_factory(&table_options);
+			// bottommost With ZSTD (Space Saving)
+			cf_opts.set_bottommost_compression_type(DBCompressionType::Zstd);
+			// 真正“启用” bottommost compression
+			// 最简单、最稳 —— 不启用字典训练（train_bytes=0），但 enabled=true
+			cf_opts.set_bottommost_zstd_max_train_bytes(0, true);
+
+			cf_opts.set_level_compaction_dynamic_level_bytes(true);
+			cf_opts.set_block_based_table_factory(&table_opts);
 			cf_opts_post_processor(cf_name, &mut cf_opts);
 			cfds.push(ColumnFamilyDescriptor::new((*cf_name).to_string(), cf_opts));
 		}

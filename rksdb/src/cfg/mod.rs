@@ -1,5 +1,7 @@
-use crate::rksdb_config::RocksdbConfig;
+use crate::cfg::rksdb_config::RocksdbConfig;
 use rocksdb::Options;
+
+pub mod rksdb_config;
 
 pub fn gen_rocksdb_options(config: &RocksdbConfig, readonly: bool) -> Options {
 	let mut db_opts = Options::default();
