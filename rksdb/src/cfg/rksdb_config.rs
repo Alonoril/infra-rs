@@ -64,7 +64,7 @@ pub struct RksdbConfig {
 }
 
 #[derive(Clone)]
-pub struct StorageDirPaths {
+pub struct RksDbDirPaths {
 	default_path: PathBuf,
 	rks_db_path: Option<PathBuf>,
 }
@@ -88,9 +88,9 @@ impl RksdbConfig {
 		}
 	}
 
-	pub fn get_dir_paths(&self) -> StorageDirPaths {
+	pub fn get_dir_paths(&self) -> RksDbDirPaths {
 		let default_dir = self.dir();
-		StorageDirPaths::new(default_dir, None)
+		RksDbDirPaths::new(default_dir, None)
 	}
 
 	pub fn set_data_dir(&mut self, data_dir: PathBuf) {
@@ -98,14 +98,14 @@ impl RksdbConfig {
 	}
 }
 
-impl StorageDirPaths {
+impl RksDbDirPaths {
 	pub fn default_root_path(&self) -> &PathBuf {
 		&self.default_path
 	}
 
-	pub fn signet_db_root_path(&self) -> &PathBuf {
-		if let Some(signet_db_path) = self.rks_db_path.as_ref() {
-			signet_db_path
+	pub fn rdb_root_path(&self) -> &PathBuf {
+		if let Some(rdb_path) = self.rks_db_path.as_ref() {
+			rdb_path
 		} else {
 			&self.default_path
 		}
@@ -118,10 +118,10 @@ impl StorageDirPaths {
 		}
 	}
 
-	fn new(default_path: PathBuf, signet_db_path: Option<PathBuf>) -> Self {
+	fn new(default_path: PathBuf, rks_db_path: Option<PathBuf>) -> Self {
 		Self {
 			default_path,
-			rks_db_path: signet_db_path,
+			rks_db_path,
 		}
 	}
 }
