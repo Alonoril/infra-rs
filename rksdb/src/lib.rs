@@ -40,10 +40,10 @@ pub trait OpenRocksDB {
 	where
 		Self: Sized;
 
-	fn get_db_column_families() -> &'static [ColumnFamilyName];
+	fn get_db_column_families() -> Vec<ColumnFamilyName>;
 
 	fn get_db_column_families_with_ttl() -> Vec<ColumnFamilyName> {
-		let mut cfs = Self::get_db_column_families().to_vec();
+		let mut cfs = Self::get_db_column_families();
 		cfs.extend(RksDB::get_ttl_column_families());
 		cfs
 	}
@@ -59,7 +59,7 @@ pub trait OpenRocksDB {
 			let cfs = Self::get_db_column_families_with_ttl();
 			build_cfds_with_post(rocksdb_config, &cfs, post)
 		} else {
-			build_cfds_with_post(rocksdb_config, Self::get_db_column_families(), post)
+			build_cfds_with_post(rocksdb_config, &Self::get_db_column_families(), post)
 		}
 	}
 

@@ -66,7 +66,7 @@ pub struct RksdbConfig {
 #[derive(Clone)]
 pub struct RksDbDirPaths {
 	default_path: PathBuf,
-	rks_db_path: Option<PathBuf>,
+	rksdb_path: Option<PathBuf>,
 }
 
 impl Default for RksdbConfig {
@@ -104,7 +104,7 @@ impl RksDbDirPaths {
 	}
 
 	pub fn rdb_root_path(&self) -> &PathBuf {
-		if let Some(rdb_path) = self.rks_db_path.as_ref() {
+		if let Some(rdb_path) = self.rksdb_path.as_ref() {
 			rdb_path
 		} else {
 			&self.default_path
@@ -114,14 +114,14 @@ impl RksDbDirPaths {
 	pub fn from_path<P: AsRef<Path>>(path: P) -> Self {
 		Self {
 			default_path: path.as_ref().to_path_buf(),
-			rks_db_path: None,
+			rksdb_path: None,
 		}
 	}
 
 	fn new(default_path: PathBuf, rks_db_path: Option<PathBuf>) -> Self {
 		Self {
 			default_path,
-			rks_db_path,
+			rksdb_path: rks_db_path,
 		}
 	}
 }
