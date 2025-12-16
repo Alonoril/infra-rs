@@ -1,22 +1,23 @@
-mod cfg;
 pub mod codec;
 pub mod errors;
+mod rdb_opts;
 pub mod schemadb;
 
 use crate::{
 	errors::RksDbError,
 	schemadb::{ColumnFamilyName, RksDB},
 };
-pub use cfg::*;
+pub use rdb_opts::*;
 use std::path::PathBuf;
 use std::time::Instant;
 use tracing::info;
 
 use base_infra::result::AppResult;
-use cfg::rksdb_config::{RksDbDirPaths, RocksdbConfig};
 use rocksdb::{BlockBasedOptions, Cache, ColumnFamilyDescriptor, DBCompressionType, Options};
 
+use rksdb_cfg::{RksDbDirPaths, RocksdbConfig};
 pub use rocksdb::DEFAULT_COLUMN_FAMILY_NAME;
+
 pub type DbResult<T, E = RksDbError> = Result<T, E>;
 
 pub type CfPost = fn(ColumnFamilyName, &mut Options);

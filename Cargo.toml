@@ -16,6 +16,7 @@ members = [
     "web/axum-resp-macro",
     "cli",
     "rksdb",
+    "rksdb/rksdb-cfg",
     "nacos",
     "utils",
     "examples/test-config",
@@ -30,6 +31,7 @@ web-infra = { path = "web" }
 axum-resp-macro = { path = "web/axum-resp-macro" }
 sql-infra = { path = "sql" }
 rksdb-infra = { path = "rksdb" }
+rksdb-cfg = { path = "rksdb/rksdb-cfg" }
 cli-infra = { path = "cli" }
 nacos-infra = { path = "nacos" }
 test-config = { path = "examples/test-config" }

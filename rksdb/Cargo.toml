@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 base-infra = { workspace = true, features = ["bincode", "tokio-pool"] }
+rksdb-cfg = { workspace = true }
 
 serde = { workspace = true }
 anyhow = { workspace = true }
