@@ -92,7 +92,7 @@ pub trait OpenRocksDB {
 		};
 
 		info!(
-			"Database opened {name} in {:?} at {path:?}!",
+			"Database {name} opened in {:?} at {path:?}!",
 			started_at.elapsed()
 		);
 		Ok(db)

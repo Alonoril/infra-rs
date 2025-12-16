@@ -90,10 +90,7 @@ where
 
 	// Spawn and return the runtime
 	builder.build().unwrap_or_else(|error| {
-		panic!(
-			"Failed to spawn named runtime! Name: {:?}, Error: {:?}",
-			thread_name, error
-		)
+		panic!("Failed to spawn named runtime! Name: {thread_name:?}, Error: {error:?}",)
 	})
 }
 
