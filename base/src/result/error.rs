@@ -117,11 +117,12 @@ macro_rules! app_err {
 //     }};
 // }
 
+/// nar_err = no arg error macro
 /// use this macro to Option .ok_or_else
 ///
 /// `option.ok_or_else(else_err!(&AccountDaoErr::TransactionNotFound))?;`
 #[macro_export]
-macro_rules! else_err {
+macro_rules! nar_err {
 	($code:expr) => {
 		|| {
 			tracing::error!("{}", $code);

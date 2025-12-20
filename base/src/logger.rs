@@ -145,3 +145,22 @@ impl Logger {
 		}
 	}
 }
+
+#[cfg(test)]
+pub fn init_tracing() -> WorkerGuard {
+	let (non_blocking, guard) = tracing_appender::non_blocking(std::io::stdout());
+
+	let layer = Layer::new()
+		.with_line_number(true)
+		.with_thread_names(true)
+		.with_thread_ids(true)
+		.with_ansi(true)
+		.with_writer(non_blocking);
+
+	let layered = registry()
+		// .with(max_level)
+		.with(layer);
+
+	layered.init();
+	guard
+}
