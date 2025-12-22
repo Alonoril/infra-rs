@@ -1,5 +1,5 @@
 use crate::error::UtlErr;
-use base_infra::else_err;
+use base_infra::nar_err;
 use base_infra::result::AppResult;
 use bigdecimal::{BigDecimal, ToPrimitive};
 
@@ -12,13 +12,13 @@ impl ToFloat for BigDecimal {
 	fn to_f32(&self) -> AppResult<f32> {
 		self.to_ref()
 			.to_f32()
-			.ok_or_else(else_err!(&UtlErr::BigDecToF32))
+			.ok_or_else(nar_err!(&UtlErr::BigDecToF32))
 	}
 
 	fn to_f64(&self) -> AppResult<f64> {
 		self.to_ref()
 			.to_f64()
-			.ok_or_else(else_err!(&UtlErr::BigDecToF32))
+			.ok_or_else(nar_err!(&UtlErr::BigDecToF32))
 	}
 }
 

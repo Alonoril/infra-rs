@@ -2,7 +2,7 @@ mod cache;
 
 use crate::error::CacheErr;
 use crate::schema::{CacheTtl, KeyCodec, Schema, ValueCodec};
-use base_infra::else_err;
+use base_infra::nar_err;
 use base_infra::result::AppResult;
 pub use cache::*;
 use moka::future::Cache;
@@ -42,7 +42,7 @@ pub trait AsyncMemCache {
 		let ttl = self.ttl();
 		TtlBytesCache::new(ttl)
 			.get()
-			.ok_or_else(else_err!(&CacheErr::CacheNotInit, format!("{:?}", ttl)))
+			.ok_or_else(nar_err!(&CacheErr::CacheNotInit, format!("{:?}", ttl)))
 	}
 
 	async fn async_store<S: Schema>(&self, key: &S::Key, value: &S::Value) -> AppResult<()> {

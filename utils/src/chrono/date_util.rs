@@ -1,6 +1,6 @@
 use crate::error::UtlErr;
 use base_infra::result::AppResult;
-use base_infra::{else_err, err, map_err};
+use base_infra::{nar_err, err, map_err};
 use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Timelike, Utc};
 use std::fmt::{Display, Formatter};
 
@@ -40,15 +40,15 @@ pub trait DateTimeUtcExt {
 	}
 
 	fn utc_from_timestamp(secs: i64, nsecs: u32) -> AppResult<DateTime<Utc>> {
-		DateTime::from_timestamp(secs, nsecs).ok_or_else(else_err!(&UtlErr::TimestampToDate))
+		DateTime::from_timestamp(secs, nsecs).ok_or_else(nar_err!(&UtlErr::TimestampToDate))
 	}
 
 	fn utc_from_millis(millis: i64) -> AppResult<DateTime<Utc>> {
-		DateTime::from_timestamp_millis(millis).ok_or_else(else_err!(&UtlErr::TimestampToDate))
+		DateTime::from_timestamp_millis(millis).ok_or_else(nar_err!(&UtlErr::TimestampToDate))
 	}
 
 	fn utc_from_micros(micros: i64) -> AppResult<DateTime<Utc>> {
-		DateTime::from_timestamp_micros(micros).ok_or_else(else_err!(&UtlErr::TimestampToDate))
+		DateTime::from_timestamp_micros(micros).ok_or_else(nar_err!(&UtlErr::TimestampToDate))
 	}
 }
 
@@ -118,7 +118,7 @@ where
 		TruncUnit::Second => value.with_nanosecond(0),
 	};
 
-	truncated.ok_or_else(else_err!(&UtlErr::TruncateDateTime, unit))
+	truncated.ok_or_else(nar_err!(&UtlErr::TruncateDateTime, unit))
 }
 
 pub trait TimelikeTruncate: Timelike + Sized {
