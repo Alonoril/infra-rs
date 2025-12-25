@@ -1,4 +1,5 @@
-///pub struct SchemaKey;
+/// ```rust
+/// pub struct SchemaKey;
 ///
 /// impl SchemaKey {
 /// 	pub fn encode(&self) -> AppResult<Vec<u8>> {
@@ -9,6 +10,7 @@
 /// 		Ok(SchemaKey)
 /// 	}
 /// }
+/// ```
 #[macro_export]
 macro_rules! impl_schema_key_codec {
 	($schema_type:ty, $key_type:ty) => {
@@ -24,7 +26,8 @@ macro_rules! impl_schema_key_codec {
 	};
 }
 
-///pub struct SchemaValue;
+/// ```rust
+/// pub struct SchemaValue;
 ///
 /// impl SchemaValue {
 /// 	pub fn encode(&self) -> AppResult<Vec<u8>> {
@@ -35,6 +38,7 @@ macro_rules! impl_schema_key_codec {
 /// 		Ok(SchemaValue)
 /// 	}
 /// }
+/// ```
 #[macro_export]
 macro_rules! impl_schema_value_codec {
 	($schema_type:ty, $value_type:ty) => {

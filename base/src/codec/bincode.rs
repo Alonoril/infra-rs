@@ -1,8 +1,14 @@
-use crate::codec::error::BinErr;
 use crate::map_err;
 use crate::result::AppResult;
 use bincode::{Decode, config, de, enc};
 use tracing::debug;
+
+crate::gen_impl_code_enum! {
+	BinErr {
+		BinEncodeErr = ("BIN001", "Bincode encode error"),
+		BinDecodeErr = ("BIN002", "Bincode decode error"),
+	}
+}
 
 pub trait BinEncodeExt {
 	fn bin_encode(&self) -> AppResult<Vec<u8>>;
