@@ -16,7 +16,7 @@ backtrace.workspace = true
 serde.workspace = true
 uuid.workspace = true
 figment = { workspace = true, features = ["env", "yaml", "toml"] }
-rkyv = { workspace = true, optional = true }
+rkyv = { workspace = true, features = ["alloc"], optional = true }
 rancor = { workspace = true, optional = true }
 rkyv_derive = { workspace = true, optional = true }
 
@@ -57,4 +57,4 @@ tokio = { workspace = true, features = ["full"] }
 reqwest.workspace = true
 serde_json.workspace = true
 tracing-rolling-file = { version = "0.1.3", features = ["non-blocking"] }
-base-infra = {workspace = true, features = ["tokio-pool", "rkyv-codec"]}
+base-infra = { workspace = true, features = ["tokio-pool", "rkyv-codec"] }
