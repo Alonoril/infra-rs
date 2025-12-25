@@ -76,10 +76,12 @@ macro_rules! impl_schema_value_rkyv_codec {
 	($schema_type:ty, $value_type:ty) => {
 		impl $crate::schemadb::schema::ValueCodec<$schema_type> for $value_type {
 			fn encode_value(&self) -> base_infra::result::AppResult<Vec<u8>> {
+				use base_infra::codec::rkyv::RkyvCodecExt;
 				self.rkyv_encode()
 			}
 
 			fn decode_value(data: &[u8]) -> base_infra::result::AppResult<Self> {
+				use base_infra::codec::rkyv::RkyvCodecExt;
 				Self::rkyv_decode(data)
 			}
 		}
