@@ -54,6 +54,38 @@ macro_rules! impl_schema_value_codec {
 	};
 }
 
+/// ```rust
+/// use base_infra::codec::rkyv::RkyvCodecExt;
+/// use base_infra::impl_rkyv_codec;
+/// use rkyv_derive::{Archive, Deserialize, Serialize};
+///
+/// #[derive(Clone, Debug, Default, PartialEq, Archive, Deserialize, Serialize)]
+/// pub struct Value {
+/// 	pub val0: f64,
+/// 	pub val1: Option<String>,
+/// }
+///
+/// // first use impl_rkyv_codec
+/// impl_rkyv_codec!(Value, ArchivedValue);
+///
+/// // and use impl_schema_value_rkyv_codec
+/// // impl_schema_value_rkyv_codec!(...);
+/// ```
+#[macro_export]
+macro_rules! impl_schema_value_rkyv_codec {
+	($schema_type:ty, $value_type:ty) => {
+		impl $crate::schemadb::schema::ValueCodec<$schema_type> for $value_type {
+			fn encode_value(&self) -> base_infra::result::AppResult<Vec<u8>> {
+				self.rkyv_encode()
+			}
+
+			fn decode_value(data: &[u8]) -> base_infra::result::AppResult<Self> {
+				Self::rkyv_decode(data)
+			}
+		}
+	};
+}
+
 /// A macro to generate the `KeyCodec` and `ValueCodec` implementations for a given schema type  with bincode.
 #[macro_export]
 macro_rules! impl_schema_bin_codec {
