@@ -1,8 +1,39 @@
+use crate::chrono::ts_to_naive_datetime;
 use crate::error::UtlErr;
 use base_infra::result::AppResult;
-use base_infra::{nar_err, err, map_err};
+use base_infra::{err, map_err, nar_err};
 use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, TimeZone, Timelike, Utc};
 use std::fmt::{Display, Formatter};
+
+pub trait TsToDateTime<T> {
+	fn to_datetime(&self) -> AppResult<T>;
+}
+
+impl TsToDateTime<NaiveDateTime> for i64 {
+	fn to_datetime(&self) -> AppResult<NaiveDateTime> {
+		ts_to_naive_datetime(*self)
+	}
+}
+
+impl TsToDateTime<NaiveDateTime> for u64 {
+	fn to_datetime(&self) -> AppResult<NaiveDateTime> {
+		let ts = *self as i64;
+		ts.to_datetime()
+	}
+}
+
+impl TsToDateTime<DateTime<Utc>> for i64 {
+	fn to_datetime(&self) -> AppResult<DateTime<Utc>> {
+		DateTime::from_timestamp(*self, 0).ok_or_else(nar_err!(&UtlErr::TimestampToDate))
+	}
+}
+
+impl TsToDateTime<DateTime<Utc>> for u64 {
+	fn to_datetime(&self) -> AppResult<DateTime<Utc>> {
+		let ts = *self as i64;
+		ts.to_datetime()
+	}
+}
 
 pub trait DiffDays<Rhs = Self> {
 	fn diff_days(self, to: Rhs) -> i64;

@@ -3,6 +3,8 @@ base_infra::gen_impl_code_enum! {
 		BigDecToF32= ("BGN001", "Failed to convert BigDecimal to f32"),
 		BigDecToF64= ("BGN002", "Failed to convert BigDecimal to f64"),
 
+		// chrono
+		InvalidTimestamp = ("CHR000", "Invalid timestamp"),
 		// date
 		StrToNaiveDt = ("CHR001", "Failed to parse NaiveDateTime from string "),
 		TimestampToDate = ("CHR002", "Failed to parse DateTime from timestamp"),

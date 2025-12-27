@@ -1,9 +1,8 @@
-use chrono::{DateTime, NaiveDateTime};
+use crate::chrono::ts_to_naive_datetime;
+use chrono::NaiveDateTime;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serializer};
 use std::str::FromStr;
-
-const MILLIS_THRESHOLD: i64 = 1_000_000_000_000;
 
 /// Includes implementations of serialization and deserialization from timestamps (e.g. 1_734_947_195).
 pub mod serde_naive_datetime {
@@ -54,13 +53,13 @@ pub mod serde_option_naive_datetime {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum TimestampInput {
+pub enum TimestampInput {
 	Int(i64),
 	String(String),
 }
 
 impl TimestampInput {
-	fn into_naive_datetime<E>(self) -> Result<NaiveDateTime, E>
+	pub fn into_naive_datetime<E>(self) -> Result<NaiveDateTime, E>
 	where
 		E: DeError,
 	{
@@ -88,16 +87,16 @@ where
 		.map_err(|_| DeError::custom(format!("invalid datetime format: {trimmed}")))
 }
 
+// let datetime = if timestamp.abs() >= MILLIS_THRESHOLD {
+// 	DateTime::from_timestamp_millis(timestamp)
+// } else {
+// 	DateTime::from_timestamp(timestamp, 0)
+// }
+// .map(|dt| dt.naive_utc());
 fn timestamp_to_naive_datetime<E>(timestamp: i64) -> Result<NaiveDateTime, E>
 where
 	E: DeError,
 {
-	let datetime = if timestamp.abs() >= MILLIS_THRESHOLD {
-		DateTime::from_timestamp_millis(timestamp)
-	} else {
-		DateTime::from_timestamp(timestamp, 0)
-	}
-	.map(|dt| dt.naive_utc());
-
-	datetime.ok_or_else(|| DeError::custom(format!("invalid unix timestamp: {timestamp}")))
+	let datetime = ts_to_naive_datetime(timestamp);
+	datetime.map_err(|_e| DeError::custom(format!("invalid unix timestamp: {timestamp}")))
 }
