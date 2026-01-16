@@ -89,7 +89,7 @@ impl Logger {
 				},
 			};
 
-			let backtrace = backtrace::Backtrace::new();
+			// let backtrace = backtrace::Backtrace::new();
 
 			match info.location() {
 				Some(location) => {
@@ -106,12 +106,12 @@ impl Logger {
 					// with backtrace
 					else {
 						error!(
-							target: "panic", "thread '{}' panicked at '{}': {}:{}\n{:?}",
+							target: "panic", "thread '{}' panicked at '{}': {}:{}",
 							thread,
 							msg,
 							location.file(),
 							location.line(),
-							backtrace
+							// backtrace
 						);
 					}
 				}
@@ -127,10 +127,10 @@ impl Logger {
 					// with backtrace
 					else {
 						error!(
-							target: "panic", "thread '{}' panicked at '{}'\n{:?}",
+							target: "panic", "thread '{}' panicked at '{}'",
 							thread,
 							msg,
-							backtrace
+							// backtrace
 						);
 					}
 				}

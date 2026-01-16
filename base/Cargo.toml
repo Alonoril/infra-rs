@@ -12,7 +12,7 @@ tracing-appender.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 anyhow.workspace = true
 thiserror.workspace = true
-backtrace.workspace = true
+#backtrace.workspace = true
 serde.workspace = true
 uuid.workspace = true
 figment = { workspace = true, features = ["env", "yaml", "toml"] }
