@@ -20,6 +20,9 @@ pub struct AppArgs {
 	/// Path to application configuration file (or template for local test mode).
 	#[clap(long, env, value_parser)]
 	pub config: Option<PathBuf>,
+	/// Git commit  hash
+	#[clap(long, short = 'c', value_parser)]
+	pub commit: bool,
 }
 
 fn parse_level(level: &str) -> anyhow::Result<Level> {
