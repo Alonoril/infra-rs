@@ -4,7 +4,7 @@ use tokio::runtime::{Builder, Runtime};
 use tokio::task::JoinHandle;
 
 static APP_RT: std::sync::LazyLock<Runtime> =
-	std::sync::LazyLock::new(|| build_named_runtime("app-rt", Some(num_cpus::get() * 2)));
+	std::sync::LazyLock::new(|| build_named_runtime("srt", Some(num_cpus::get() * 2)));
 
 pub trait Spawnable: Future + Send + 'static {
 	fn spawn(self) -> JoinHandle<Self::Output>;
