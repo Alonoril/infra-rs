@@ -10,5 +10,10 @@ gen_impl_code_enum! {
 
 		PaginatorItemsAndPages = ("DBPG01", "Get total items and pages error"),
 		PaginatorFetchPage = ("DBPG02", "Execute Paginator fetch_page error"),
+
+		// version
+		GetVersion = ("DBVER01", "Get version error"),
+		VersionNotFound = ("DBVER02", "Version not found"),
+		TryGetVersion = ("DBVER03", "Try get version from `QueryResult` error"),
 	}
 }

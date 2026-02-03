@@ -9,6 +9,7 @@ repository.workspace = true
 [dependencies]
 base-infra = { workspace = true, features = ["tokio-pool"] }
 cli-infra = { workspace = true }
+sql-infra = { workspace = true, features = ["pgsql", "sqlite"] }
 
 clap = { workspace = true }
 dotenvy = { workspace = true }

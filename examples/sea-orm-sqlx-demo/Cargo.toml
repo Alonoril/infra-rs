@@ -9,7 +9,7 @@ repository.workspace = true
 [dependencies]
 base-infra = { workspace = true, features = ["tokio-pool"] }
 cli-infra = { workspace = true }
-sql-infra = { workspace = true, features = ["sqlite"] }
+sql-infra = { workspace = true, features = ["pgsql", "sqlite"] }
 test-config.workspace = true
 
 clap = { workspace = true }
@@ -21,5 +21,7 @@ axum = { workspace = true }
 serde = { workspace = true }
 
 # sql
-sea-orm = { workspace = true, features = ["sqlx-sqlite", "with-bigdecimal", "with-chrono", "debug-print", "sqlite-use-returning-for-3_35"] }
+sea-orm = { workspace = true, features = ["sqlx-postgres", "sqlx-sqlite", "with-bigdecimal", "with-chrono", "debug-print", "sqlite-use-returning-for-3_35"] }
+#sea-orm = { version = "1", features = ["with-bigdecimal", "with-chrono", "debug-print", "sqlx-postgres"] }
+
 sqlx.workspace = true

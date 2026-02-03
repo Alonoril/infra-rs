@@ -18,7 +18,7 @@ impl ToFloat for BigDecimal {
 	fn to_f64(&self) -> AppResult<f64> {
 		self.to_ref()
 			.to_f64()
-			.ok_or_else(nar_err!(&UtlErr::BigDecToF32))
+			.ok_or_else(nar_err!(&UtlErr::BigDecToF64))
 	}
 }
 

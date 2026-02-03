@@ -81,3 +81,8 @@ impl Deref for DatabaseConn {
 		&self.pool
 	}
 }
+
+#[async_trait::async_trait]
+pub trait ServerVersion {
+	async fn version(&self) -> AppResult<String>;
+}

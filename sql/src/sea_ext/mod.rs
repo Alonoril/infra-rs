@@ -3,4 +3,5 @@
 //! to enable seamless database operations without string conversions.
 
 pub mod page;
+pub mod pgsql;
 pub mod uint_types;
