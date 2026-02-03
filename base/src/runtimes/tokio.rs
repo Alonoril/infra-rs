@@ -43,6 +43,13 @@ impl Tokio {
 	{
 		APP_RT.spawn(future)
 	}
+
+	// pub fn spawn_sys_thread<F>(&self, future: F) -> std::thread::JoinHandle<()>
+	// where
+	// 	F: Future<Output = ()> + Send + 'static,
+	// {
+	// 	spawn_sys_thread(future)
+	// }
 }
 
 /// Returns a tokio runtime with named threads.
@@ -93,6 +100,19 @@ where
 		panic!("Failed to spawn named runtime! Name: {thread_name:?}, Error: {error:?}",)
 	})
 }
+
+// fn spawn_sys_thread<F>(fut: F) -> std::thread::JoinHandle<()>
+// where
+// 	F: Future<Output = ()> + Send + 'static,
+// {
+// 	std::thread::spawn(|| {
+// 		Builder::new_current_thread()
+// 			.enable_all()
+// 			.build()
+// 			.expect("New runtime spawn to main thread error")
+// 			.block_on(fut);
+// 	})
+// }
 
 #[cfg(test)]
 mod tests {

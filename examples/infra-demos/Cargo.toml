@@ -1,0 +1,21 @@
+[package]
+name = "infra-demos"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+base-infra = { workspace = true, features = ["tokio-pool"] }
+cli-infra = { workspace = true }
+sql-infra = { workspace = true, features = ["pgsql", "sqlite"] }
+test-config.workspace = true
+
+clap = { workspace = true }
+dotenvy = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true, features = ["signal", "rt", "rt-multi-thread", "macros"] }

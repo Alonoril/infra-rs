@@ -21,7 +21,7 @@ members = [
     "utils",
     "examples/test-config",
     "examples/sea-orm-sqlx-demo",
-    "examples/axum-resp-demo", "examples/clap_cli_demo",
+    "examples/axum-resp-demo", "examples/clap_cli_demo", "examples/infra-demos",
 ]
 
 [workspace.dependencies]
