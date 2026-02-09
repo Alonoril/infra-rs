@@ -7,7 +7,18 @@ use crate::result::{AppResult, SysErr};
 use figment::Figment;
 use figment::providers::{Env, Format, Toml, Yaml};
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use std::path::PathBuf;
+use std::sync::Arc;
+
+pub trait GlobalConfigClient<C>
+where
+	C: DeserializeOwned + Send + Sync + Clone + 'static,
+{
+	fn get(&self) -> Arc<C>;
+
+	fn cache(&mut self, config: C);
+}
 
 pub trait ConfigExt
 where

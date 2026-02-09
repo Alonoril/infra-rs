@@ -2,20 +2,12 @@ use crate::core::ConfigExt;
 use crate::service::NacosConfigService;
 use crate::types::{GroupKey, NacosServer};
 use arc_swap::ArcSwap;
+use base_infra::config::GlobalConfigClient;
 use base_infra::runtimes::Tokio;
 use nacos_sdk::api::config::ConfigResponse;
 use serde::de::DeserializeOwned;
 use std::sync::{Arc, mpsc};
 use tracing::info;
-
-pub trait GlobalConfigClient<C>
-where
-	C: DeserializeOwned + Send + Sync + Clone + 'static,
-{
-	fn get(&self) -> Arc<C>;
-
-	fn cache(&mut self, config: C);
-}
 
 pub struct NacosConfigClient<C> {
 	config_service: NacosConfigService,

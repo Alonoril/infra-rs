@@ -6,8 +6,7 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 
-[dependencies]
-
+[dev-dependencies]
 base-infra = { workspace = true, features = ["tokio-pool"] }
 cli-infra = { workspace = true }
 sql-infra = { workspace = true, features = ["pgsql", "sqlite"] }

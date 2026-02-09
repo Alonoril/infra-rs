@@ -17,7 +17,7 @@ members = [
     "cli",
     "rksdb",
     "rksdb/rksdb-cfg",
-    "nacos",
+#    "nacos",
     "utils",
     "examples/test-config",
     "examples/sea-orm-sqlx-demo",
@@ -33,12 +33,17 @@ sql-infra = { path = "sql" }
 rksdb-infra = { path = "rksdb" }
 rksdb-cfg = { path = "rksdb/rksdb-cfg" }
 cli-infra = { path = "cli" }
-nacos-infra = { path = "nacos" }
+#nacos-infra = { path = "nacos" }
 test-config = { path = "examples/test-config" }
 
 clap = { version = "4.5", features = ["derive", "env"] }
 figment = { version = "0.10" }
 dotenvy = "0.15"
+
+# macro
+syn = "2"
+quote = "1"
+
 
 # runtime dependencies
 futures = "0.3"
@@ -94,4 +99,4 @@ reqwest = "0.12"
 
 # nacos
 arc-swap = "1.7"
-nacos-sdk = { version = "=0.4.3" }
+#nacos-sdk = { version = "=0.4.3" }
