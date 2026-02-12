@@ -13,6 +13,10 @@ impl UID {
 		self.v4_simple().to_string()
 	}
 
+	pub fn v4_short(&self) -> String {
+		self.v4_simple_str()[..8].to_uppercase()
+	}
+
 	pub fn v4_low_u64(&self) -> u64 {
 		let (_, low) = self.v4().as_u64_pair();
 		low
@@ -44,6 +48,18 @@ mod tests {
 	#[test]
 	fn test_v4_simple_str() {
 		let my_uuid = UID.v4_simple_str();
+		println!("{}", my_uuid);
+	}
+
+	#[test]
+	fn test_v4_low_u64() {
+		let my_uuid = UID.v4_low_u64();
+		println!("{}", my_uuid);
+	}
+
+	#[test]
+	fn test_v4_short() {
+		let my_uuid = UID.v4_short();
 		println!("{}", my_uuid);
 	}
 }
